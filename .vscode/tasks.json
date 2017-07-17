@@ -1,0 +1,23 @@
+{
+    "version": "0.1.0",
+    "command": "powershell",
+    "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-NoProfile"
+        ],
+    "suppressTaskName": true,
+    "tasks": [
+        {
+            "taskName": "build",
+            "showOutput": "never",
+            "isBuildCommand": true,
+            "args": ["-File","${cwd}/Task/build.ps1"]
+        },
+        {
+            "taskName": "install",
+            "showOutput": "never",
+            "args": ["-File","${cwd}/Task/install.ps1"]
+        }
+    ]
+}
