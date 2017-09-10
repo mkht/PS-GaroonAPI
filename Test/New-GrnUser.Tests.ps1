@@ -4,11 +4,11 @@ Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
 Describe "Tests of New-GrnUser" {
-    $script:GrnURL = 'http://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
+    $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
     $ValidCred = New-Object PsCredential "sato",(ConvertTo-SecureString "sato" -asplaintext -force)
-    
+
     Context 'Error' {
-        
+
         $script:DummyInfo = @{
                 LoginName = 'foo'
                 Password = 'pass'
@@ -16,34 +16,34 @@ Describe "Tests of New-GrnUser" {
             }
 
         It "If http 404 error, shoud throw WebException" {
-            $local:WrongURL = 'http://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
+            $local:WrongURL = 'https://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
 
             {New-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop} | Should throw '404'
         }
 
         It "If you use invalid credential, shoud throw [FW00007] error" {
             $local:InvalidCred = New-Object PsCredential "hoge",(ConvertTo-SecureString "hoge" -asplaintext -force)
-            
+
             {New-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop} | Should throw '[FW00007]'
         }
 
         It "If try to create duplicate user, shoud throw" {
-            
+
             $local:DuplicateUser = @{
                 LoginName = 'sato'
                 Password = 'sato'
                 DisplayName = '佐藤 昇'
             }
-            
+
             {New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop} | Should throw '既に存在します'
         }
 
         It "If specified NON existing Organization name, shoud throw" {
-            
+
             $local:DuplicateUser = $DummyInfo
             $DuplicateUser.PrimaryOrganization = 'ほにゃららら'
             $DuplicateUser.Organization = '役員'
-            
+
             {New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop} | Should throw '存在しない組織名が含まれています'
         }
     }
@@ -65,7 +65,7 @@ Describe "Tests of New-GrnUser" {
                 Organization = "総務部","経理部"
             }
 
-            $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue            
+            $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.DisplayName | Should BeExactly $UserInfo.DisplayName
             $user.PrimaryOrganization | Should BeExactly $UserInfo.PrimaryOrganization
@@ -84,7 +84,7 @@ Describe "Tests of New-GrnUser" {
                 Organization = ''
             }
 
-            $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue            
+            $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.DisplayName | Should BeExactly $UserInfo.DisplayName
             $UserInfo.Organization | Should Be ''

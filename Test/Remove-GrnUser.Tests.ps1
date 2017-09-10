@@ -4,9 +4,9 @@ Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
 Describe "Tests of Remove-GrnUser" {
-    $script:GrnURL = 'http://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
+    $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
     $ValidCred = New-Object PsCredential "sato",(ConvertTo-SecureString "sato" -asplaintext -force)
-    
+
     Context 'Error' {
         It "If you try to remove user that not exist, shoud throw" {
             {Remove-GrnUser -LoginName 'notexistuser' -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw '見つかりません'
@@ -29,7 +29,7 @@ Describe "Tests of Remove-GrnUser" {
         }
 
         It "Remove User" {
-            {Remove-GrnUser $UserInfo.LoginName -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw  ""          
+            {Remove-GrnUser $UserInfo.LoginName -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw  ""
         }
     }
 }

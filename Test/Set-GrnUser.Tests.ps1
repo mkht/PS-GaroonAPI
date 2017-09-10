@@ -4,11 +4,11 @@ Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
 Describe "Tests of Set-GrnUser" {
-    $script:GrnURL = 'http://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
+    $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
     $ValidCred = New-Object PsCredential "sato",(ConvertTo-SecureString "sato" -asplaintext -force)
-    
+
     Context 'Error' {
-        
+
         $script:DummyInfo = @{
                 LoginName = 'foo'
                 Password = 'pass'
@@ -16,14 +16,14 @@ Describe "Tests of Set-GrnUser" {
             }
 
         It "If http 404 error, shoud throw WebException" {
-            $local:WrongURL = 'http://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
+            $local:WrongURL = 'https://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
 
             {Set-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop} | Should throw '404'
         }
 
         It "If you use invalid credential, shoud throw [FW00007] error" {
             $local:InvalidCred = New-Object PsCredential "hoge",(ConvertTo-SecureString "hoge" -asplaintext -force)
-            
+
             {Set-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop} | Should throw '[FW00007]'
         }
 
@@ -35,13 +35,13 @@ Describe "Tests of Set-GrnUser" {
         }
 
         It "If specified NON existing Organization name, shoud throw" {
-            
+
             $local:NonExistingOrgs = @{
                 LoginName = 'nomura'
             }
             $NonExistingOrgs.PrimaryOrganization = 'ほにゃららら'
             $NonExistingOrgs.Organization = '役員'
-            
+
             {Set-GrnUser @NonExistingOrgs -URL $GrnURL -Credential $ValidCred -ea Stop} | Should throw '存在しない組織名が含まれています'
         }
     }
@@ -73,7 +73,7 @@ Describe "Tests of Set-GrnUser" {
             $private:info = @{
                 DisplayName = 'Modify_X'; Phone = '080-XXX-XXXX'
             }
-            $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue            
+            $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.DisplayName | Should BeExactly $info.DisplayName
             $user.Phone | Should BeExactly $info.Phone
@@ -83,7 +83,7 @@ Describe "Tests of Set-GrnUser" {
             $private:info = @{
                 PrimaryOrganization = '社長'; Organization = '社長','企画部'
             }
-            $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue            
+            $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.PrimaryOrganization | Should BeExactly $info.PrimaryOrganization
             {$info.Organization -ccontains $user.PrimaryOrganization} | Should Be $true
@@ -107,8 +107,8 @@ Describe "Tests of Set-GrnUser" {
                 PrimaryOrganization = '情報システム部'
                 Position = 30347
             }
-            $private:user = Get-GrnUser -LoginName $UserInfo.LoginName -URL $GrnURL -Credential $ValidCred | 
-                Set-GrnUser @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue            
+            $private:user = Get-GrnUser -LoginName $UserInfo.LoginName -URL $GrnURL -Credential $ValidCred |
+                Set-GrnUser @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.Position | Should BeExactly $info.Position
             $user.PrimaryOrganization | Should BeExactly $info.PrimaryOrganization
