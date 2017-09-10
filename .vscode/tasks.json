@@ -10,13 +10,13 @@
     "tasks": [
         {
             "taskName": "build",
-            "showOutput": "never",
+            "showOutput": "always",
             "isBuildCommand": true,
             "args": ["-File","${cwd}/Task/build.ps1"]
         },
         {
             "taskName": "install",
-            "showOutput": "never",
+            "showOutput": "always",
             "args": ["-File","${cwd}/Task/install.ps1"]
         }
     ]
