@@ -7,7 +7,6 @@ Describe "Tests of Get-GrnOrganization" {
     $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
     $ValidCred = New-Object PsCredential "sato", (ConvertTo-SecureString "sato" -asplaintext -force)
 
-
     Context '組織情報を取得する（組織名指定）' {
 
         It "実行時にエラーが発生しないか" {
@@ -71,6 +70,10 @@ Describe "Tests of Get-GrnOrganization" {
         It "正しい組織名が取得できているか（経理部）" {
             $Org3[1].OrganizationName | Should Be '経理部'
         }
+
+        It "戻り値の型が[Object[]]の配列（ジャグ配列）であること" {
+            $Org3[0] -is [System.object[]] | Should Be $true
+        }
     }
 
     Context '組織情報を取得する(ワイルドカード検索)' {
@@ -119,6 +122,21 @@ Describe "Tests of Get-GrnOrganization" {
 
         It '$nullを返しているか' {
             $Org6 | Should BeNullOrEmpty
+        }
+    }
+
+    Context '組織情報を取得（パイプライン）' {
+        
+        It "実行時にエラーが発生しないか" {
+            {$script:Org7 = ('営業部', '経理部') | Get-GrnOrganization -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+        }
+        
+        It '正しい組織名が取得できているか（営業部＆経理部）' {
+            $Org7.OrganizationName | Should Be ('営業部', '経理部')
+        }
+
+        It '戻り値の型が[PSCustomObject]の配列であること（パラメータ入力の場合とは型が異なる）' {
+            $Org7[0] -is [PSCustomObject] | Should Be $true
         }
     }
 }
