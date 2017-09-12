@@ -63,80 +63,82 @@ Describe "Tests of Get-GrnOrganization" {
             $Org3.Count | Should Be 2
         }
 
-        It "正しい組織名が取得できているか（営業部）" {
+        It "正しい組織名が取得できているか（営業部＆経理部）" {
             $Org3[0].OrganizationName | Should Be '営業部'
-        }
-
-        It "正しい組織名が取得できているか（経理部）" {
             $Org3[1].OrganizationName | Should Be '経理部'
         }
 
         It "戻り値の型が[Object[]]の配列（ジャグ配列）であること" {
+            $Org3 -is [System.object[]] | Should Be $true
             $Org3[0] -is [System.object[]] | Should Be $true
+            $Org3[1] -is [System.object[]] | Should Be $true
+        }
+    }
+
+    Context '複数の組織情報を取得する（パイプライン）' {
+        
+        It "実行時にエラーが発生しないか" {
+            {$script:Org4 = ('営業部', '経理部') | Get-GrnOrganization -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+        }
+        
+        It '正しい組織名が取得できているか（営業部＆経理部）' {
+            $Org4.OrganizationName | Should Be ('営業部', '経理部')
+        }
+
+        It '戻り値の型が[PSCustomObject]の配列であること（パラメータ入力の場合とは型が異なる）' {
+            $Org4 -is [System.object[]] | Should Be $true
+            $Org4[0] -is [PSCustomObject] | Should Be $true
+            $Org4[1] -is [PSCustomObject] | Should Be $true
         }
     }
 
     Context '組織情報を取得する(ワイルドカード検索)' {
 
         It "実行時にエラーが発生しないか" {
-            {$script:Org4 = Get-GrnOrganization -OrganizationName '*部' -SearchMode Like -NoDetail -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+            {$script:Org5 = Get-GrnOrganization -OrganizationName '*部' -SearchMode Like -NoDetail -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
         }
 
         It "複数組織が取得できているか" {
-            $Org4.Count | Should BeGreaterThan 1
+            $Org5.Count | Should BeGreaterThan 1
         }
 
         It "マッチする組織が取得できているか" {
-            ($Org4.OrganizationName | ? {$_ -like '*部'}).Count | Should Be $Org4.OrganizationName.Count
+            ($Org5.OrganizationName | ? {$_ -like '*部'}).Count | Should Be $Org5.OrganizationName.Count
         }
 
         It "マッチしない組織が含まれていないか" {
-            $Org4.OrganizationName | ? {$_ -notlike '*部'} | Should BeNullOrEmpty
+            $Org5.OrganizationName | ? {$_ -notlike '*部'} | Should BeNullOrEmpty
         }
     }
 
     Context '組織情報を取得する(正規表現検索)' {
 
         It "実行時にエラーが発生しないか" {
-            {$script:Org5 = Get-GrnOrganization -OrganizationName '第\d営業' -SearchMode RegExp -NoDetail -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+            {$script:Org6 = Get-GrnOrganization -OrganizationName '第\d営業' -SearchMode RegExp -NoDetail -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
         }
 
         It "複数組織が取得できているか" {
-            $Org5.Count | Should Be 2
+            $Org6.Count | Should Be 2
         }
 
         It "マッチする組織が取得できているか" {
-            ($Org5.OrganizationName | ? {$_ -match '第\d営業'}).Count | Should Be $Org5.OrganizationName.Count
+            ($Org6.OrganizationName | ? {$_ -match '第\d営業'}).Count | Should Be $Org6.OrganizationName.Count
         }
 
         It "マッチしない組織が含まれていないか" {
-            $Org5.OrganizationName | ? {$_ -notmatch '第\d営業'} | Should BeNullOrEmpty
+            $Org6.OrganizationName | ? {$_ -notmatch '第\d営業'} | Should BeNullOrEmpty
         }
     }
 
     Context '存在しない組織情報は取得できない' {
 
         It "実行時にエラーが発生しないか" {
-            {$script:Org6 = Get-GrnOrganization -OrganizationName 'ほげほげ部' -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+            {$script:Org7 = Get-GrnOrganization -OrganizationName 'ほげほげ部' -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
         }
 
         It '$nullを返しているか' {
-            $Org6 | Should BeNullOrEmpty
+            $Org7 | Should BeNullOrEmpty
         }
     }
 
-    Context '組織情報を取得（パイプライン）' {
-        
-        It "実行時にエラーが発生しないか" {
-            {$script:Org7 = ('営業部', '経理部') | Get-GrnOrganization -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
-        }
-        
-        It '正しい組織名が取得できているか（営業部＆経理部）' {
-            $Org7.OrganizationName | Should Be ('営業部', '経理部')
-        }
-
-        It '戻り値の型が[PSCustomObject]の配列であること（パラメータ入力の場合とは型が異なる）' {
-            $Org7[0] -is [PSCustomObject] | Should Be $true
-        }
-    }
 }
