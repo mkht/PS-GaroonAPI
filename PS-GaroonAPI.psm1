@@ -640,6 +640,201 @@ Class GaroonAdmin : GaroonClass {
 }
 <#
 .Synopsis
+   ガルーンの組織を取得します
+.DESCRIPTION
+   組織名をキーにガルーンの組織を取得します。
+   組織が見つからない場合、$nullを返します。
+.PARAMETER OrganizationName
+    取得したい組織の名前
+    配列で複数渡すことができます
+    パイプライン入力が可能です
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
+.PARAMETER SearchMode
+    組織を検索する方法を指定します
+    Equal:  完全一致検索（デフォルト）
+    Like:   ワイルドカード検索
+    RegExp: 正規表現検索
+.PARAMETER NoDetail
+    指定した場合、組織名、組織ID、組織コードのみを取得し、
+    親子組織やメンバユーザの情報は取得しません。
+    通信量を抑えて高速に結果を取得できます。
+.EXAMPLE
+    Get-GrnOrganization -OrganizationName '営業部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
+    Example 1: 組織名が"営業部"の組織の情報を取得する
+    OrganizationName   : 営業部
+    Code               : eigyo
+    Id                 : 9
+    ParentOrganization : 大洗株式会社
+    ChildOrganization  : {第1営業グループ, 第2営業グループ}
+    Members            : {nishizumi, takebe, reizen, akiyama...}
+.EXAMPLE
+    Get-GrnOrganization '*' -SearchMode Like -NoDetail -URL $GrnURL -Credential $PSCred
+    Example 2: すべての組織を取得する（組織名と組織IDのみ）
+    ワイルドカードを使用してガルーンに登録されたすべての組織を取得します。
+    -NoDetail オプションを使用することで通信量を抑えて高速に取得できます。
+.EXAMPLE
+    Get-GrnOrganization "営業部","経理部" -URL $GrnURL -Credential $PSCred
+    Example 3: 複数の組織を取得する
+    組織名を配列で渡すことで複数組織の情報を取得できます。
+    出力は入力した組織数と同数の要素を持つジャグ配列になります。
+    ※注意： 組織名をパラメータではなくパイプラインで入力した場合は、ジャグ配列ではなくフラットな配列で出力されます
+#>
+function Get-GrnOrganization {
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [string[]]$OrganizationName,
+        [Parameter(Mandatory = $true)]
+        [string]$URL,
+        [Parameter(Mandatory = $true)]
+        [pscredential]$Credential,
+        [ValidateSet("Equal", "Like", "RegExp")]
+        [string]$SearchMode = "Equal",
+        [switch]$NoDetail
+    )
+    Begin {
+        $base = New-Object GaroonBase @($URL, $Credential) -ErrorAction Stop
+        $admin = New-Object GaroonAdmin @($URL, $Credential) -ErrorAction Stop
+        try {
+            $orgids = $admin.GetOrgIds()
+            if ($orgids.Count -le 0) {
+                throw "組織情報が取得できませんでした"
+            }
+            else {
+                $orgs = $base.GetOrganizationsById($orgids)
+            }
+        }
+        catch [Exception] {
+            Write-Error -Exception $_.Exception
+            return
+        }
+        $private:ex = switch ($SearchMode) {
+            'Equal' {'eq'}
+            'Like' {'like'}
+            'RegExp' {'match'}
+        }
+        Set-Variable -Name eval -Value ('$_.name -{0} $Organization' -f $ex) -Option ReadOnly
+    }
+    Process {
+        $Ret = @()
+        foreach ($Organization in $OrganizationName) {
+            $private:s = $orgs.Where( {iex $eval})
+            if ($s.Count -ge 1) {
+                $Ret += , @($s | foreach {
+                        if ($_.key) {
+                            $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                        }
+                        if (-not $NoDetail) {
+                            if ($_.organization) {
+                                $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
+                            }
+                            else {$ChildOrgs = $null}
+                            if ($_.parent_organization) {
+                                $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
+                            }
+                            else {$ParentOrg = $null}
+                            if ($_.members.user.id) {
+                                $Members = $base.GetUsersById($_.members.user.id)
+                            }
+                            else {$Members = $null}
+                        }
+                        [PSCustomObject]@{
+                            OrganizationName   = [string]$_.name    #組織名
+                            Code               = [string]$OrgDetail.org_code    #組織コード
+                            Id                 = [string]$_.key #組織ID
+                            ParentOrganization = [string]$ParentOrg.name    #3親組織
+                            ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
+                            Members            = [string[]]$Members.login_name  #メンバー
+                        }
+                    })
+            }
+            else {
+                $Ret += , $null
+            }
+        }
+        if (-not $Ret) {
+            $null
+        }
+        elseif ($Ret.Count -eq 1) {
+            $Ret[0]
+        }
+        else {
+            $Ret
+        }
+        trap [Exception] {
+            if ($_.Exception -is [System.Net.WebException]) {
+                Write-Error -Exception $_.Exception
+                return $null
+            }
+        }
+    }
+    End {
+    }
+}
+function New-GrnOrganization {
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
+        [string[]]$OrganizationName,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [string]$OrganizationCode,
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [string]$ParentOrganization,
+        [Parameter(Mandatory = $true)]
+        [string]$URL,
+        [Parameter(Mandatory = $true)]
+        [pscredential]$Credential,
+        [switch]$PassThru
+    )
+    Begin {
+        $admin = New-Object GaroonAdmin @($URL, $Credential) -ErrorAction Stop
+    }
+    Process {
+        if (-not $OrganizationCode) {
+            $OrganizationCode = [System.Web.Security.Membership]::GeneratePassword(9, 0)
+            Write-Warning "組織コードが指定されていません。自動生成された組織コード($OrganizationCode)を使用します"
+        }
+        if ($ParentOrganization) {
+            $Parent = Get-GrnOrganization -OrganizationName $ParentOrganization -NoDetail -URL $URL -Credential $Credential -ErrorAction Stop
+            if (-not $Parent) {
+                Write-Error "親組織が見つかりません"
+                return
+            }
+            elseif ($Parent.Count -ge 2) {
+                Write-Error "指定の親組織名と同名の組織が複数見つかりました。処理を中止します"
+                return
+            }
+        }
+        try {
+            [void] $admin.AddOrg($OrganizationCode, $OrganizationName, $Parent.Id)
+        }
+        catch {
+            if($_.Exception.Message -match 'GRN_CMMN_00103'){
+                Write-Error '[ERROR][GRN_CMMN_00103] すでに存在する組織コードの組織を指定しています。'
+            }
+            else{
+                Write-Error $_.Exception.Message
+            }
+        }
+        if ($PassThru) {
+            try {
+                Get-GrnOrganization -OrganizationName $OrganizationName -URL $URL -Credential $Credential -ErrorAction Stop
+            }
+            catch {
+                Write-Error $_.Exception.Message
+            }
+        }
+    }
+}
+<#
+.Synopsis
    ガルーンのユーザを取得します
 .DESCRIPTION
    ログイン名をキーにガルーンのユーザを取得します。
@@ -1068,162 +1263,28 @@ function Remove-GrnUser
     }
     End {}
 }
-<#
-.Synopsis
-   ガルーンの組織を取得します
-.DESCRIPTION
-   組織名をキーにガルーンの組織を取得します。
-   組織が見つからない場合、$nullを返します。
-.PARAMETER OrganizationName
-    取得したい組織の名前
-    配列で複数渡すことができます
-    パイプライン入力が可能です
-.PARAMETER URL
-    ガルーンのURL
-    必ずトップページのURLを指定してください
-    例: http://grnserver/cgi-bin/cgi/grn.cgi
-.PARAMETER Credential
-    ガルーンに接続するための資格情報
-.PARAMETER SearchMode
-    組織を検索する方法を指定します
-    Equal:  完全一致検索（デフォルト）
-    Like:   ワイルドカード検索
-    RegExp: 正規表現検索
-.PARAMETER NoDetail
-    指定した場合、組織名と組織IDのみを取得し、
-    親子組織やメンバユーザの情報は取得しません。
-    通信量を抑えて高速に結果を取得できます。
-.EXAMPLE
-    Get-GrnOrganization -OrganizationName '営業部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
-    Example 1: 組織名が"営業部"の組織の情報を取得する
-    OrganizationName   : 営業部
-    Id                 : 9
-    ParentOrganization : 大洗株式会社
-    ChildOrganization  : {第1営業グループ, 第2営業グループ}
-    Members            : {nishizumi, takebe, reizen, akiyama...}
-.EXAMPLE
-    Get-GrnOrganization '*' -SearchMode Like -NoDetail -URL $GrnURL -Credential $PSCred
-    Example 2: すべての組織を取得する（組織名と組織IDのみ）
-    ワイルドカードを使用してガルーンに登録されたすべての組織を取得します。
-    -NoDetail オプションを使用することで通信量を抑えて高速に取得できます。
-.EXAMPLE
-    Get-GrnOrganization "営業部","経理部" -URL $GrnURL -Credential $PSCred
-    Example 3: 複数の組織を取得する
-    組織名を配列で渡すことで複数組織の情報を取得できます。
-    出力は入力した組織数と同数の要素を持つジャグ配列になります。
-    ※注意： 組織名をパラメータではなくパイプラインで入力した場合は、ジャグ配列ではなくフラットな配列で出力されます
-#>
-function Get-GrnOrganization {
-    [CmdletBinding()]
-    Param
-    (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
-        [string[]]$OrganizationName,
-        [Parameter(Mandatory = $true)]
-        [string]$URL,
-        [Parameter(Mandatory = $true)]
-        [pscredential]$Credential,
-        [ValidateSet("Equal", "Like", "RegExp")]
-        [string]$SearchMode = "Equal",
-        [switch]$NoDetail
-    )
-    Begin {
-        $base = New-Object GaroonBase @($URL, $Credential) -ErrorAction Stop
-        $admin = New-Object GaroonAdmin @($URL, $Credential) -ErrorAction Stop
-        try {
-            $orgids = $admin.GetOrgIds()
-            if ($orgids.Count -le 0) {
-                throw "組織情報が取得できませんでした"
-            }
-            else {
-                $orgs = $base.GetOrganizationsById($orgids)
-            }
-        }
-        catch [Exception] {
-            Write-Error -Exception $_.Exception
-            return
-        }
-        $private:ex = switch ($SearchMode) {
-            'Equal' {'eq'}
-            'Like' {'like'}
-            'RegExp' {'match'}
-        }
-        Set-Variable -Name eval -Value ('$_.name -{0} $Organization' -f $ex) -Option ReadOnly
-    }
-    Process {
-        $Ret = @()
-        foreach ($Organization in $OrganizationName) {
-            $private:s = $orgs.Where( {iex $eval})
-            if ($s.Count -ge 1) {
-                $Ret += , @($s | foreach {
-                        if (-not $NoDetail) {
-                            if ($_.organization) {
-                                $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
-                            }
-                            else {$ChildOrgs = $null}
-                            if ($_.parent_organization) {
-                                $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
-                            }
-                            else {$ParentOrg = $null}
-                            if ($_.members.user.id) {
-                                $Members = $base.GetUsersById($_.members.user.id)
-                            }
-                            else {$Members = $null}
-                        }
-                        [PSCustomObject]@{
-                            OrganizationName   = [string]$_.name
-                            Id                 = [string]$_.key
-                            ParentOrganization = [string]$ParentOrg.name
-                            ChildOrganization  = [string[]]$ChildOrgs.name
-                            Members            = [string[]]$Members.login_name
-                        }
-                    })
-            }
-            else {
-                $Ret += , $null
-            }
-        }
-        if (-not $Ret) {
-            $null
-        }
-        elseif ($Ret.Count -eq 1) {
-            $Ret[0]
-        }
-        else {
-            $Ret
-        }
-        trap [Exception] {
-            if ($_.Exception -is [System.Net.WebException]) {
-                Write-Error -Exception $_.Exception
-                return $null
-            }
-        }
-    }
-    End {
-    }
-}
-function Invoke-SOAPRequest
+function Invoke-SOAPRequest 
 {
     [CmdletBinding()]
     [OutputType([Xml])]
     Param(
-        [Xml]    $SOAPRequest,
-        [String] $URL
+        [Xml]    $SOAPRequest, 
+        [String] $URL 
     )
-    Write-Verbose "Sending SOAP Request To Server: $URL"
+    Write-Verbose "Sending SOAP Request To Server: $URL" 
     $soapWebRequest = [System.Net.WebRequest]::Create($URL)
     $soapWebRequest.ContentType = 'text/xml;charset="utf-8"'
     $soapWebRequest.Accept      = "text/xml"
     $soapWebRequest.Method      = "POST"
-    $requestStream = $soapWebRequest.GetRequestStream()
-    $SOAPRequest.Save($requestStream)
-    $requestStream.Close()
-    Write-Verbose "Send Complete, Waiting For Response."
-    $resp = $soapWebRequest.GetResponse()
-    $responseStream = $resp.GetResponseStream()
-    $soapReader = [System.IO.StreamReader]($responseStream)
-    $ReturnXml = [Xml] $soapReader.ReadToEnd()
-    $responseStream.Close()
+    $requestStream = $soapWebRequest.GetRequestStream() 
+    $SOAPRequest.Save($requestStream) 
+    $requestStream.Close() 
+    Write-Verbose "Send Complete, Waiting For Response." 
+    $resp = $soapWebRequest.GetResponse() 
+    $responseStream = $resp.GetResponseStream() 
+    $soapReader = [System.IO.StreamReader]($responseStream) 
+    $ReturnXml = [Xml] $soapReader.ReadToEnd() 
+    $responseStream.Close() 
     Write-Verbose "Response Received."
-    return $ReturnXml
+    return $ReturnXml 
 }
