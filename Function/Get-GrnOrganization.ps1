@@ -22,7 +22,7 @@
     Like:   ワイルドカード検索
     RegExp: 正規表現検索
 .PARAMETER NoDetail
-    指定した場合、組織名と組織IDのみを取得し、
+    指定した場合、組織名、組織ID、組織コードのみを取得し、
     親子組織やメンバユーザの情報は取得しません。
     通信量を抑えて高速に結果を取得できます。
 .EXAMPLE
@@ -30,6 +30,7 @@
     Example 1: 組織名が"営業部"の組織の情報を取得する
 
     OrganizationName   : 営業部
+    Code               : eigyo
     Id                 : 9
     ParentOrganization : 大洗株式会社
     ChildOrganization  : {第1営業グループ, 第2営業グループ}
@@ -103,6 +104,9 @@ function Get-GrnOrganization {
             $private:s = $orgs.Where( {iex $eval})
             if ($s.Count -ge 1) {
                 $Ret += , @($s | foreach {
+                        if ($_.key) {
+                            $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                        }
                         if (-not $NoDetail) {
                             if ($_.organization) {
                                 $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
@@ -118,11 +122,12 @@ function Get-GrnOrganization {
                             else {$Members = $null}
                         }
                         [PSCustomObject]@{
-                            OrganizationName   = [string]$_.name
-                            Id                 = [string]$_.key
-                            ParentOrganization = [string]$ParentOrg.name
-                            ChildOrganization  = [string[]]$ChildOrgs.name
-                            Members            = [string[]]$Members.login_name
+                            OrganizationName   = [string]$_.name    #組織名
+                            Code               = [string]$OrgDetail.org_code    #組織コード
+                            Id                 = [string]$_.key #組織ID
+                            ParentOrganization = [string]$ParentOrg.name    #3親組織
+                            ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
+                            Members            = [string[]]$Members.login_name  #メンバー
                         }
                     })
             }
