@@ -6,14 +6,17 @@ function New-GrnOrganization {
     (
         # 追加する組織名
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
+        [Alias('Name', 'Organization')]
         [string[]]$OrganizationName,
 
         #組織コード
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Alias('Code')]
         [string]$OrganizationCode,
 
         #親組織名
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
+        [Alias('Parent')]
         [string]$ParentOrganization,
 
         # ガルーンのURL

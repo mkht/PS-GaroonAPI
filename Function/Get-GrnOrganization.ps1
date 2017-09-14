@@ -10,6 +10,7 @@
     取得したい組織の名前
     配列で複数渡すことができます
     パイプライン入力が可能です
+    エイリアス：'Name', 'Organization'
 .PARAMETER URL
     ガルーンのURL
     必ずトップページのURLを指定してください
@@ -56,6 +57,7 @@ function Get-GrnOrganization {
     (
         # 検索する組織名
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [Alias('Name', 'Organization')]
         [string[]]$OrganizationName,
 
         # ガルーンのURL
@@ -96,11 +98,11 @@ function Get-GrnOrganization {
             'Like' {'like'}
             'RegExp' {'match'}
         }
-        Set-Variable -Name eval -Value ('$_.name -{0} $Organization' -f $ex) -Option ReadOnly
+        Set-Variable -Name eval -Value ('$_.name -{0} $Org' -f $ex) -Option ReadOnly
     }
     Process {
         $Ret = @()
-        foreach ($Organization in $OrganizationName) {
+        foreach ($Org in $OrganizationName) {
             $private:s = $orgs.Where( {iex $eval})
             if ($s.Count -ge 1) {
                 $Ret += , @($s | foreach {
