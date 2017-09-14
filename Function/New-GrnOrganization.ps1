@@ -56,7 +56,7 @@ function New-GrnOrganization {
         # 組織コード重複の場合は実行時に[GRN_CMMN_00103]エラーが出るのでそれで。
 
         if (-not $OrganizationCode) {
-            $OrganizationCode = [System.Web.Security.Membership]::GeneratePassword(9, 0)
+            $OrganizationCode = -join ((1..9) | % {Get-Random -input ([char[]]((48..57) + (65..90) + (97..122)))})  #Gen random 9 chars passwd that only has 0-9A-Za-z
             Write-Warning "組織コードが指定されていません。自動生成された組織コード($OrganizationCode)を使用します"
         }
 
@@ -78,12 +78,12 @@ function New-GrnOrganization {
             [void] $admin.AddOrg($OrganizationCode, $OrganizationName, $Parent.Id)
         }
         catch {
-            if($_.Exception.Message -match 'GRN_CMMN_00103'){
+            if ($_.Exception.Message -match 'GRN_CMMN_00103') {
                 #標準のエラーメッセージだと分かりにくいのでメッセージをいじる
                 #標準: [ERROR][GRN_CMMN_00103] 組織情報を設定できません。
                 Write-Error '[ERROR][GRN_CMMN_00103] すでに存在する組織コードの組織を指定しています。'
             }
-            else{
+            else {
                 Write-Error $_.Exception.Message
             }
         }
