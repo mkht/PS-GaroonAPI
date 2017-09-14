@@ -78,12 +78,12 @@ function New-GrnOrganization {
             [void] $admin.AddOrg($OrganizationCode, $OrganizationName, $Parent.Id)
         }
         catch {
-            if($_.Exception.Message -match 'GRN_CMMN_00103'){
+            if ($_.Exception.Message -match 'GRN_CMMN_00103') {
                 #標準のエラーメッセージだと分かりにくいのでメッセージをいじる
                 #標準: [ERROR][GRN_CMMN_00103] 組織情報を設定できません。
                 Write-Error '[ERROR][GRN_CMMN_00103] すでに存在する組織コードの組織を指定しています。'
             }
-            else{
+            else {
                 Write-Error $_.Exception.Message
             }
         }
