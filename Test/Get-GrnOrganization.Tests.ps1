@@ -4,8 +4,11 @@ Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
 Describe "Tests of Get-GrnOrganization" {
-    $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
+    $GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
     $ValidCred = New-Object PsCredential "sato", (ConvertTo-SecureString "sato" -asplaintext -force)
+
+    $BWarn = $global:WarningPreference
+    $global:WarningPreference = 'SilentlyContinue'
 
     Context '組織情報を取得する（組織名指定）' {
 
@@ -125,14 +128,17 @@ Describe "Tests of Get-GrnOrganization" {
     }
 
     Context '存在しない組織情報は取得できない' {
+        $script:Org7 = 'This variable must be null'
 
         It "実行時にエラーが発生しないか" {
             {$script:Org7 = Get-GrnOrganization -OrganizationName 'ほげほげ部' -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
         }
 
-        It '$nullを返しているか' {
+        It '関数が明示的に$nullを返しているか' {
             $Org7 | Should BeNullOrEmpty
+            @($Org7).Length | Should Be 1   #明示的な$nullの場合は1になるが、何も値を持っていない暗黙$nullの場合は0になる
         }
     }
 
+    $global:WarningPreference = $BWarn
 }
