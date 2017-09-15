@@ -682,8 +682,7 @@ Class GaroonAdmin : GaroonClass {
     Get-GrnOrganization "営業部","経理部" -URL $GrnURL -Credential $PSCred
     Example 3: 複数の組織を取得する
     組織名を配列で渡すことで複数組織の情報を取得できます。
-    出力は入力した組織数と同数の要素を持つジャグ配列になります。
-    ※注意： 組織名をパラメータではなくパイプラインで入力した場合は、ジャグ配列ではなくフラットな配列で出力されます
+    出力は入力した組織数と同数の要素を持つ配列になります。
 #>
 function Get-GrnOrganization {
     [CmdletBinding()]
@@ -706,7 +705,7 @@ function Get-GrnOrganization {
         try {
             $orgids = $admin.GetOrgIds()
             if ($orgids.Count -le 0) {
-                throw "組織情報が取得できませんでした"
+                throw "ガルーンから組織情報が取得できませんでした"
             }
             else {
                 $orgs = $base.GetOrganizationsById($orgids)
@@ -714,7 +713,7 @@ function Get-GrnOrganization {
         }
         catch [Exception] {
             Write-Error -Exception $_.Exception
-            return
+            return $null
         }
         $private:ex = switch ($SearchMode) {
             'Equal' {'eq'}
@@ -724,56 +723,45 @@ function Get-GrnOrganization {
         Set-Variable -Name eval -Value ('$_.name -{0} $Org' -f $ex) -Option ReadOnly
     }
     Process {
-        $Ret = @()
         foreach ($Org in $OrganizationName) {
-            $private:s = $orgs.Where( {iex $eval})
+            $private:s = $orgs.Where( {Invoke-Expression $eval})
             if ($s.Count -ge 1) {
-                $Ret += , @($s | foreach {
-                        if ($_.key) {
-                            $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                $s | ForEach-Object {
+                    if ($_.key) {
+                        $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                    }
+                    if (-not $NoDetail) {
+                        if ($_.organization) {
+                            $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
                         }
-                        if (-not $NoDetail) {
-                            if ($_.organization) {
-                                $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
-                            }
-                            else {$ChildOrgs = $null}
-                            if ($_.parent_organization) {
-                                $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
-                            }
-                            else {$ParentOrg = $null}
-                            if ($_.members.user.id) {
-                                $Members = $base.GetUsersById($_.members.user.id)
-                            }
-                            else {$Members = $null}
+                        else {$ChildOrgs = $null}
+                        if ($_.parent_organization) {
+                            $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
                         }
-                        [PSCustomObject]@{
-                            OrganizationName   = [string]$_.name    #組織名
-                            Code               = [string]$OrgDetail.org_code    #組織コード
-                            Id                 = [string]$_.key #組織ID
-                            ParentOrganization = [string]$ParentOrg.name    #3親組織
-                            ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
-                            Members            = [string[]]$Members.login_name  #メンバー
+                        else {$ParentOrg = $null}
+                        if ($_.members.user.id) {
+                            $Members = $base.GetUsersById($_.members.user.id)
                         }
-                    })
+                        else {$Members = $null}
+                    }
+                    [PSCustomObject]@{
+                        OrganizationName   = [string]$_.name    #組織名
+                        Code               = [string]$OrgDetail.org_code    #組織コード
+                        Id                 = [string]$_.key #組織ID
+                        ParentOrganization = [string]$ParentOrg.name    #3親組織
+                        ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
+                        Members            = [string[]]$Members.login_name  #メンバー
+                    }
+                }
             }
             else {
-                $Ret += , $null
+                Write-Warning ('"{0}"に一致する組織が見つかりませんでした' -f $Org)
+                $null
             }
-        }
-        if (-not $Ret) {
-            $null
-        }
-        elseif ($Ret.Count -eq 1) {
-            $Ret[0]
-        }
-        else {
-            $Ret
         }
         trap [Exception] {
-            if ($_.Exception -is [System.Net.WebException]) {
-                Write-Error -Exception $_.Exception
-                return $null
-            }
+            Write-Error -Exception $_.Exception
+            return $null
         }
     }
     End {

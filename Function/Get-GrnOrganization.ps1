@@ -81,7 +81,7 @@ function Get-GrnOrganization {
         try {
             $orgids = $admin.GetOrgIds()
             if ($orgids.Count -le 0) {
-                throw "組織情報が取得できませんでした"
+                throw "ガルーンから組織情報が取得できませんでした"
             }
             else {
                 $orgs = $base.GetOrganizationsById($orgids)
@@ -89,7 +89,7 @@ function Get-GrnOrganization {
         }
         catch [Exception] {
             Write-Error -Exception $_.Exception
-            return
+            return $null
         }
 
         $private:ex = switch ($SearchMode) {
@@ -101,9 +101,9 @@ function Get-GrnOrganization {
     }
     Process {
         foreach ($Org in $OrganizationName) {
-            $private:s = $orgs.Where( {iex $eval})
+            $private:s = $orgs.Where( {Invoke-Expression $eval})
             if ($s.Count -ge 1) {
-                $s | foreach {
+                $s | ForEach-Object {
                     if ($_.key) {
                         $OrgDetail = $admin.GetOrgDetailByIds($_.key)
                     }
