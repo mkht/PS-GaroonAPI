@@ -137,10 +137,8 @@ function Get-GrnOrganization {
         }
 
         trap [Exception] {
-            if ($_.Exception -is [System.Net.WebException]) {
-                Write-Error -Exception $_.Exception
-                return $null
-            }
+            Write-Error -Exception $_.Exception
+            return $null
         }
     }
     End {
