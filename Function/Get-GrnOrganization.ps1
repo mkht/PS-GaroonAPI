@@ -47,8 +47,7 @@
     Example 3: 複数の組織を取得する
 
     組織名を配列で渡すことで複数組織の情報を取得できます。
-    出力は入力した組織数と同数の要素を持つジャグ配列になります。
-    ※注意： 組織名をパラメータではなくパイプラインで入力した場合は、ジャグ配列ではなくフラットな配列で出力されます
+    出力は入力した組織数と同数の要素を持つ配列になります。
 #>
 
 function Get-GrnOrganization {
@@ -101,51 +100,40 @@ function Get-GrnOrganization {
         Set-Variable -Name eval -Value ('$_.name -{0} $Org' -f $ex) -Option ReadOnly
     }
     Process {
-        $Ret = @()
         foreach ($Org in $OrganizationName) {
             $private:s = $orgs.Where( {iex $eval})
             if ($s.Count -ge 1) {
-                $Ret += , @($s | foreach {
-                        if ($_.key) {
-                            $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                $s | foreach {
+                    if ($_.key) {
+                        $OrgDetail = $admin.GetOrgDetailByIds($_.key)
+                    }
+                    if (-not $NoDetail) {
+                        if ($_.organization) {
+                            $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
                         }
-                        if (-not $NoDetail) {
-                            if ($_.organization) {
-                                $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
-                            }
-                            else {$ChildOrgs = $null}
-                            if ($_.parent_organization) {
-                                $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
-                            }
-                            else {$ParentOrg = $null}
-                            if ($_.members.user.id) {
-                                $Members = $base.GetUsersById($_.members.user.id)
-                            }
-                            else {$Members = $null}
+                        else {$ChildOrgs = $null}
+                        if ($_.parent_organization) {
+                            $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
                         }
-                        [PSCustomObject]@{
-                            OrganizationName   = [string]$_.name    #組織名
-                            Code               = [string]$OrgDetail.org_code    #組織コード
-                            Id                 = [string]$_.key #組織ID
-                            ParentOrganization = [string]$ParentOrg.name    #3親組織
-                            ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
-                            Members            = [string[]]$Members.login_name  #メンバー
+                        else {$ParentOrg = $null}
+                        if ($_.members.user.id) {
+                            $Members = $base.GetUsersById($_.members.user.id)
                         }
-                    })
+                        else {$Members = $null}
+                    }
+                    [PSCustomObject]@{
+                        OrganizationName   = [string]$_.name    #組織名
+                        Code               = [string]$OrgDetail.org_code    #組織コード
+                        Id                 = [string]$_.key #組織ID
+                        ParentOrganization = [string]$ParentOrg.name    #3親組織
+                        ChildOrganization  = [string[]]$ChildOrgs.name  #子組織
+                        Members            = [string[]]$Members.login_name  #メンバー
+                    }
+                }
             }
             else {
-                $Ret += , $null
+                $null
             }
-        }
-
-        if (-not $Ret) {
-            $null
-        }
-        elseif ($Ret.Count -eq 1) {
-            $Ret[0]
-        }
-        else {
-            $Ret
         }
 
         trap [Exception] {
