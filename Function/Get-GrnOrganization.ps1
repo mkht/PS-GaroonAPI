@@ -132,6 +132,7 @@ function Get-GrnOrganization {
                 }
             }
             else {
+                Write-Warning ('"{0}"に一致する組織が見つかりませんでした' -f $Org)
                 $null
             }
         }
