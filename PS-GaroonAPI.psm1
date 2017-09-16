@@ -848,7 +848,7 @@ function Get-GrnUser {
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [string]$LoginName,
         [Parameter(Mandatory = $true)]
         [string]$URL,
@@ -862,6 +862,7 @@ function Get-GrnUser {
         try {
             $user = $base.GetUsersByLoginName($LoginName)
             if (-not $user.key) {
+                Write-Warning ('指定されたログイン名のユーザが見つかりません')
                 return $null    #ユーザが見つからない
             }
             if ($user.organization.id) {

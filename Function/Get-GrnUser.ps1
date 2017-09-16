@@ -44,6 +44,7 @@ function Get-GrnUser {
         try {
             $user = $base.GetUsersByLoginName($LoginName)
             if (-not $user.key) {
+                Write-Warning ('指定されたログイン名のユーザが見つかりません')
                 return $null    #ユーザが見つからない
             }
 
