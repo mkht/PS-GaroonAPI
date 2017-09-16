@@ -25,7 +25,7 @@ function Get-GrnUser {
     Param
     (
         # 検索するログイン名
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [string]$LoginName,
 
         # ガルーンのURL
