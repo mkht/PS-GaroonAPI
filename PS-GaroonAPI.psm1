@@ -767,13 +767,43 @@ function Get-GrnOrganization {
     End {
     }
 }
+<#
+.SYNOPSIS
+    ガルーンの組織を作成します
+.DESCRIPTION
+    ガルーンの組織を作成します
+.PARAMETER OrganizationName
+    作成する組織の名前
+    エイリアス: Name, Organization
+.PARAMETER OrganizationCode
+    組織コード
+    他の組織の組織コードと重複しないコードを指定する必要があります。
+    指定しない場合、ランダムな9文字の組織コードが自動で割り当てられます。
+    エイリアス: Code
+.PARAMETER ParentOrganization
+    作成する組織の親組織の名前
+    エイリアス: Parent
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
+.PARAMETER PassThru
+    デフォルトではこの関数は処理後に何も出力しません。
+    -PassThruを使用すると作成した組織情報を出力します。
+.EXAMPLE
+    New-GrnOrganization -OrganizationName '登山部' -URL $URL -Credential $cred
+    Example 1: 組織名が'登山部'の組織を作成します
+    親組織はなし、組織コードは自動割当
+#>
 function New-GrnOrganization {
     [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
         [Alias('Name', 'Organization')]
-        [string[]]$OrganizationName,
+        [string]$OrganizationName,
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [Alias('Code')]
         [string]$OrganizationCode,

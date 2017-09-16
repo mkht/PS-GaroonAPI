@@ -37,7 +37,7 @@ function New-GrnOrganization {
         # 追加する組織名
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
         [Alias('Name', 'Organization')]
-        [string[]]$OrganizationName,
+        [string]$OrganizationName,
 
         #組織コード
         [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
