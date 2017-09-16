@@ -862,7 +862,6 @@ function Get-GrnUser {
         try {
             $user = $base.GetUsersByLoginName($LoginName)
             if (-not $user.key) {
-                Write-Warning ('指定されたログイン名のユーザが見つかりません')
                 return $null    #ユーザが見つからない
             }
             if ($user.organization.id) {
@@ -877,7 +876,7 @@ function Get-GrnUser {
                 2 { $Invalid = $true }  #Deleted
                 Default {}
             }
-            $Ret = [PSCustomObject]@{
+            [PSCustomObject]@{
                 LoginName           = [string]$user.login_name
                 Id                  = [string]$user.key
                 DisplayName         = [string]$user.name
@@ -891,11 +890,16 @@ function Get-GrnUser {
                 Phone               = [string]$user.phone
                 Post                = [string]$user.title
             }
-            $Ret
         }
         catch [Exception] {
-            Write-Error -Exception $_.Exception
-            return $null
+            if ($_.Exception.Message -match 'GRN_CMMN_00105') {
+                Write-Warning ('指定されたログイン名のユーザが見つかりません')
+                return $null    #ユーザが見つからない
+            }
+            else {
+                Write-Error -Exception $_.Exception
+                return $null
+            }
         }
     }
     End {}
