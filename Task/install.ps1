@@ -1,4 +1,6 @@
-﻿$Src = Join-Path $PSScriptRoot '..\'
+﻿#Requires -RunAsAdministrator
+
+$Src = Join-Path $PSScriptRoot '..\'
 $Dst = "$env:SystemDrive\Program Files\WindowsPowerShell\Modules"
 $ModuleName = "PS-GaroonAPI"
 
