@@ -57,7 +57,12 @@ PowerShellVersion = '5.0'
 # RequiredAssemblies = @()
 
 # このモジュールをインポートする前に呼び出し元の環境で実行されるスクリプト ファイル (.ps1)。
-# ScriptsToProcess = @()
+ScriptsToProcess = @(
+    'Class\GaroonClass.ps1',
+    'Class\GaroonBase.ps1',
+    'Class\GaroonAdmin.ps1',
+    'Class\GaroonMail.ps1'
+)
 
 # このモジュールをインポートするときに読み込まれる型ファイル (.ps1xml)
 # TypesToProcess = @()
@@ -69,7 +74,16 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # このモジュールからエクスポートする関数です。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートする関数がない場合は、エントリを削除しないで空の配列を使用してください。
-FunctionsToExport = '*'
+FunctionsToExport = @(
+    'Get-GrnUser',
+    'New-GrnUser',
+    'Set-GrnUser',
+    'Remove-GrnUser',
+    'Get-GrnOrganization',
+    'New-GrnOrganization',
+    'New-GrnMailAccount',
+    'Invoke-SOAPRequest'
+)
 
 # このモジュールからエクスポートするコマンドレットです。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートするコマンドレットがない場合は、エントリを削除しないで空の配列を使用してください。
 CmdletsToExport = @()

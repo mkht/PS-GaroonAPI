@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .Synopsis
    ガルーンの組織を取得します
 .DESCRIPTION

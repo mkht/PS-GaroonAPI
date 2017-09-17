@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .Synopsis
    ガルーンのユーザを取得します
 .DESCRIPTION

@@ -1,6 +1,4 @@
-﻿using module ".\GaroonClass.ps1"
-
-# ユーザー情報の詳細を表す型
+﻿# ユーザー情報の詳細を表す型
 # https://cybozudev.zendesk.com/hc/ja/articles/202496120#step3
 class UserInfo {
     [string]$PrimaryGroup = [NullString]::Value   # 優先する組織のID

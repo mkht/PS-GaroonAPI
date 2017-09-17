@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .Synopsis
    ガルーンのユーザを削除します
 .DESCRIPTION

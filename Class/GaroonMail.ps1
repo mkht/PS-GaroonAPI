@@ -1,6 +1,4 @@
-﻿using module ".\GaroonClass.ps1"
-
-class MailAccountInfo {
+﻿class MailAccountInfo {
     [string]$AccountId   # アカウントID
     [string]$UserId  # ユーザーID
     [string]$UserAccountCode    # アカウントコード

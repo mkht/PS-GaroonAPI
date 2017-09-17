@@ -9,12 +9,6 @@
     "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "build",
-            "showOutput": "always",
-            "isBuildCommand": true,
-            "args": ["-File","${cwd}/Task/build.ps1"]
-        },
-        {
             "taskName": "install",
             "showOutput": "always",
             "args": ["-File","${cwd}/Task/install.ps1"]

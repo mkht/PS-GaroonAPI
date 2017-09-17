@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .SYNOPSIS
     ガルーンの組織を作成します
 .DESCRIPTION

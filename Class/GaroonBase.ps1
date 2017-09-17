@@ -1,6 +1,4 @@
-﻿using module ".\GaroonClass.ps1"
-
-# ベースAPI群実行用クラス
+﻿# ベースAPI群実行用クラス
 # https://cybozudev.zendesk.com/hc/ja/sections/200483120-%E3%83%99%E3%83%BC%E3%82%B9
 Class GaroonBase : GaroonClass {
     [string] $ApiSuffix = "/cbpapi/base/api"

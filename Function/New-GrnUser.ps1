@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .Synopsis
    ガルーンにユーザを作成します
 .DESCRIPTION

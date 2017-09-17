@@ -1,6 +1,4 @@
-﻿using module PS-GaroonAPI
-
-<#
+﻿<#
 .Synopsis
    ガルーンのユーザ情報を変更します
 .DESCRIPTION
