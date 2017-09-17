@@ -27,7 +27,7 @@ Author = 'mkht'
 CompanyName = 'mkht'
 
 # このモジュールの著作権情報
-Copyright = '(c) 2016 mkht. All rights reserved.'
+Copyright = '(c) 2017 mkht. All rights reserved.'
 
 # このモジュールの機能の説明
 Description = 'PowerShell Garoon API Module'
