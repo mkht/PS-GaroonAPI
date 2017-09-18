@@ -43,7 +43,12 @@
     }
 
     Process {
-        $Org = Get-GrnOrganization $OrganizationName -URL $URL -Credential $Credential -wa SilentlyContinue
+        if ($PSBoundParameters.Members -is [Array]) {
+            $Org = Get-GrnOrganization $OrganizationName -URL $URL -Credential $Credential -wa SilentlyContinue
+        }
+        else {
+            $Org = Get-GrnOrganization $OrganizationName -NoDetail -URL $URL -Credential $Credential -wa SilentlyContinue
+        }
         if((-not $Org) -or (@($Org).Length -ne 1)){
             Write-Error ('組織 ({0}) が見つかりませんでした' -f $OrganizationName)
             return
@@ -55,7 +60,7 @@
                 Write-Host ('{0} の親組織は既に {1} になっています' -f $OrganizationName, $ParentOrganization)
             }
             else{
-                $ParentOrg = Get-GrnOrganization $ParentOrganization -URL $URL -Credential $Credential -ea SilentlyContinue -wa SilentlyContinue
+                $ParentOrg = Get-GrnOrganization $ParentOrganization -NoDetail -URL $URL -Credential $Credential -ea SilentlyContinue -wa SilentlyContinue
                 if((-not $ParentOrg) -or (@($ParentOrg).Length -ne 1)){
                     Write-Error ('新しい親組織 ({0}) が見つかりませんでした' -f $ParentOrganization)
                 }
