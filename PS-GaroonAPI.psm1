@@ -10,7 +10,7 @@ foreach ($class in $ClassList) {
 }
 
 # Load Functions
-$AllFunctions = @( Get-ChildItem -Path $PSScriptRoot\Function\*.ps1 -ErrorAction SilentlyContinue )
+$AllFunctions = @( Get-ChildItem -Path $PSScriptRoot\Function\ -Filter *.ps1 -Recurse -File -ErrorAction SilentlyContinue )
 foreach ($function in $AllFunctions) {
     try {
         # Dot source
