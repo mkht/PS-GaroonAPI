@@ -117,7 +117,4 @@ Describe "Tests of Set-GrnOrganization" {
             {Set-GrnOrganization -Name $OrgName -Parent $Parent -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw '新しい親組織'
         }
     }
-
-
-
 }
