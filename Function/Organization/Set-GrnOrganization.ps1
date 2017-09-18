@@ -1,4 +1,41 @@
-﻿function Set-GrnOrganization {
+﻿<#
+.SYNOPSIS
+    ガルーンの組織情報を変更します
+.DESCRIPTION
+    ガルーンの組織情報を変更します
+.PARAMETER OrganizationName
+    変更する組織の名前
+    エイリアス: Name, Organization
+.PARAMETER NewOrganizationName
+    組織名を変更する場合に、変更後の組織名を指定します
+    エイリアス: NewName
+.PARAMETER ParentOrganization
+    新しい親組織の名前
+    GaroonAPIの制限により親組織を削除することはできません
+    エイリアス: Parent
+.PARAMETER Members
+    組織に所属するユーザのログインIDを配列で指定します
+    既存の所属ユーザは削除されます
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
+.PARAMETER PassThru
+    デフォルトではこの関数は処理後に何も出力しません
+    -PassThruを使用すると変更後の組織情報を出力します
+.EXAMPLE
+    Set-GrnOrganization -OrganizationName 'ゴルフ同好会' -NewOrganizationName 'ゴルフ部' -URL $URL -Credential $cred
+    Example 1: 'ゴルフ同好会'の組織名を'ゴルフ部'に変更します
+.EXAMPLE
+    Set-GrnOrganization -OrganizationName 'テニス部' -ParentOrganization '運動部' -URL $URL -Credential $cred
+    Example 2: 'テニス部'の親組織を'運動部'に変更します
+.EXAMPLE
+    Set-GrnOrganization -OrganizationName '水泳部' -Members ('nanase', 'tachibana', 'matsuoka') -URL $URL -Credential $cred
+    Example 3: '水泳部'の所属メンバーを変更します
+#>
+function Set-GrnOrganization {
     [CmdletBinding()]
     Param
     (
