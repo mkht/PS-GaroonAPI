@@ -60,7 +60,7 @@
                     Write-Error ('新しい親組織 ({0}) が見つかりませんでした' -f $ParentOrganization)
                 }
                 else{
-                    [void]$admin.AddChildrenOfOrg($ParentOrg.Id, $Org.Id, $NewOrganizationName)
+                    [void]$admin.AddChildrenOfOrg($ParentOrg.Id, $Org.Id)
                 }
             }
         }
