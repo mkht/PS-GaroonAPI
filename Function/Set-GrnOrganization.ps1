@@ -69,7 +69,7 @@
             # 全メンバーを削除
             $RemoveUserIds = [int[]]($Org.Members | ForEach-Object{
                 try{$private:user = $base.GetUsersByLoginName($_)}catch{}
-                if(-not $user.key){
+                if($user.key){
                     $user.key
                 }
             })
@@ -81,7 +81,7 @@
             $AddUserIds = [int[]]($Members | ForEach-Object {
                 $private:name = $_
                 try{$private:user = $base.GetUsersByLoginName($name)}catch{}
-                if(-not $user.key){
+                if($user.key){
                     $user.key
                 }
                 else{
