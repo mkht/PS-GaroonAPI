@@ -61,7 +61,7 @@ function Get-GrnUser {
 
             [PSCustomObject]@{
                 LoginName           = [string]$user.login_name
-                Id                  = [string]$user.key
+                Id                  = [string]$user.key #ユーザIDはおそらく[int]固定だが、GaroonAPIの仕様書上ではNonBlankStringTypeになっているので[string]で返す
                 DisplayName         = [string]$user.name
                 Kana                = [string]$user.reading
                 Email               = [string]$user.email
