@@ -62,7 +62,11 @@ Describe "Tests of Set-GrnOrganization" {
         }
 
         It "正しくメンバーが変わっているか" {
-            $Org1.Members | Should Be $NewMember
+            @($Org1.Members.Count) | Should Be 4
+            $Org1.Members -ccontains $NewMember[0] | Should Be $true
+            $Org1.Members -ccontains $NewMember[1] | Should Be $true
+            $Org1.Members -ccontains $NewMember[2] | Should Be $true
+            $Org1.Members -ccontains $NewMember[3] | Should Be $true
         }
 
         #繰り返しテスト実行できるようメンバーを元に戻しておく
