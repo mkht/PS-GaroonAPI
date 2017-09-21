@@ -82,6 +82,7 @@ FunctionsToExport = @(
     'Get-GrnOrganization',
     'New-GrnOrganization',
     'Set-GrnOrganization',
+    'Add-GrnOrganizationMember',
     'New-GrnMailAccount',
     'Invoke-SOAPRequest'
 )
