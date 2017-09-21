@@ -20,8 +20,8 @@
     デフォルトではこの関数は処理後に何も出力しません
     -PassThruを使用すると変更後の組織情報を出力します
 .EXAMPLE
-    Add-GrnOrganizationMember -OrganizationName '星の浦女学院' -Members ('国木田華丸', '黒澤ルビィ') -URL $URL -Credential $cred
-    Example 1: 組織「星の浦女学院」にユーザ「国木田華丸」と「黒澤ルビィ」を追加します
+    Add-GrnOrganizationMember -OrganizationName '星の浦女学院' -Members ('国木田花丸', '黒澤ルビィ') -URL $URL -Credential $cred
+    Example 1: 組織「星の浦女学院」にユーザ「国木田花丸」と「黒澤ルビィ」を追加します
     追加するユーザは「ユーザ名」ではなく「ログインID」を指定することに注意してください。
 #>
 function Add-GrnOrganizationMember {
