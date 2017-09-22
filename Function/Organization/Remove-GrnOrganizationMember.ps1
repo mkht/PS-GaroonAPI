@@ -72,7 +72,7 @@ function Remove-GrnOrganizationMember {
                     Write-Warning ('指定されたログイン名のユーザ({0})が見つかりません' -f $name)
                 }
             })
-        if ($AddUserIds.Count -ge 1) {
+        if ($RemoveUserIds.Count -ge 1) {
             [void]$admin.RemoveUsersFromOrg($Org.Id, $RemoveUserIds)
         }
     }
