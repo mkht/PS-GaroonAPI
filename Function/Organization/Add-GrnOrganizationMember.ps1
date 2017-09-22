@@ -22,7 +22,9 @@
 .EXAMPLE
     Add-GrnOrganizationMember -OrganizationName '星の浦女学院' -Members ('国木田花丸', '黒澤ルビィ') -URL $URL -Credential $cred
     Example 1: 組織「星の浦女学院」にユーザ「国木田花丸」と「黒澤ルビィ」を追加します
-    追加するユーザは「ユーザ名」ではなく「ログインID」を指定することに注意してください。
+.NOTES
+    追加するユーザは「ユーザ名」ではなく「ログインID」を指定することに注意してください
+    追加するユーザが既に対象組織のメンバーである場合でも、この関数は正常実行されエラーや警告は出力しません
 #>
 function Add-GrnOrganizationMember {
     [CmdletBinding()]
