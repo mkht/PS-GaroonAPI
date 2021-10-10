@@ -1,6 +1,5 @@
 ﻿
-function New-GrnMailAccount
-{
+function New-GrnMailAccount {
     [CmdletBinding()]
     Param
     (
@@ -14,68 +13,84 @@ function New-GrnMailAccount
 
         [switch]$PassThru,
 
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)] [string]$LoginName, # ログイン名
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)] [string]$Password,   # パスワード
-        [Parameter(Mandatory,ValueFromPipelineByPropertyName)] [string]$Email,   # メールアドレス
-        [Parameter(ValueFromPipelineByPropertyName)] [string]$AccountCode,    # アカウントコード
-        [Parameter(ValueFromPipelineByPropertyName)] [string]$AccountName,    # アカウント名
-        [Parameter(ValueFromPipelineByPropertyName)] [bool]$LeaveServerMail = $false,   # メールサーバーにメールを残す
-        [Parameter(ValueFromPipelineByPropertyName)] [string]$Invalid = $false,    # アカウント停止
-        [parameter(DontShow,ValueFromPipelineByPropertyName)][string]$Id    # ユーザID（隠しパラメータ）
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [string]$LoginName, # ログイン名
+        
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [string]$Password, # パスワード
+
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)] 
+        [string]$Email, # メールアドレス
+        
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$AccountCode, # アカウントコード
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$AccountName, # アカウント名
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$MailServerId = '1', # メールサーバーID
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [bool]$LeaveServerMail = $false, # メールサーバーにメールを残す
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$Invalid = $false, # アカウント停止
+
+        [parameter(DontShow, ValueFromPipelineByPropertyName)]
+        [string]$Id    # ユーザID（隠しパラメータ）
     )
 
-    Begin
-    {
-        $base = New-Object GaroonBase @($URL,$Credential) -ErrorAction Stop
-        $mail = New-Object GaroonMail @($URL,$Credential) -ErrorAction Stop
+    Begin {
+        $base = New-Object GaroonBase @($URL, $Credential) -ErrorAction Stop
+        $mail = New-Object GaroonMail @($URL, $Credential) -ErrorAction Stop
     }
-    Process
-    {
+    Process {
 
-        if(-not $AccountCode){
+        if (-not $AccountCode) {
             $AccountCode = $Email
         }
-        if(-not $AccountName){
+        if (-not $AccountName) {
             $AccountName = $Email
         }
 
-        try{
+        try {
             $user = $base.GetUsersByLoginName($LoginName)
         }
-        catch [Exception]{
+        catch [Exception] {
             # GRNERR以外のエラー(404など)の場合は中断
-            if($_.Exception -is [System.Net.WebException]){
+            if ($_.Exception -is [System.Net.WebException]) {
                 Write-Error -Exception $_.Exception
                 return
             }
         }
-        if(-not ($Id = $user.key)){
+        if (-not ($Id = $user.key)) {
             $msg = ("ユーザ'{0}'が存在しません" -f $LoginName)
             Write-Error $msg
             return
         }
 
         $MailParams = @{
-            AccountId = 1
-            UserId = $Id
+            AccountId       = 1
+            UserId          = $Id
             UserAccountCode = $UserAccountCode
             UserAccountName = $UserAccountName
-            MailServerId = 1
-            Email = $Email
-            AccountName = $UserAccountName
-            Password = $Password
+            MailServerId    = $MailServerId
+            Email           = $Email
+            AccountName     = $UserAccountName
+            Password        = $Password
             LeaveServerMail = $LeaveServerMail
-            Deactivate = $Invalid
+            Deactivate      = $Invalid
         }
 
         $MailAccountInfo = New-Object MailUserAccount $MailParams
 
-        try{
+        try {
             $result = $mail.CreateUserAccount($MailAccountInfo)
         }
-        catch [Exception]{
+        catch [Exception] {
             # GRNERR以外のエラー(404など)の場合は中断
-            if($_.Exception -is [System.Net.WebException]){
+            if ($_.Exception -is [System.Net.WebException]) {
                 Write-Error -Exception $_.Exception
                 return
             }
@@ -83,13 +98,13 @@ function New-GrnMailAccount
                 Write-Error ("このユーザは既にメールアカウントが設定されています")
                 return
             }
-            else{
+            else {
                 Write-Error -Exception $_.Exception
                 return
             }
         }
 
-        if($PassThru){
+        if ($PassThru) {
             $result
         }
     }
