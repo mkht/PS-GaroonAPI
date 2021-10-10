@@ -23,10 +23,10 @@ function New-GrnMailAccount {
         [string]$Email, # メールアドレス
         
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$AccountCode, # アカウントコード
+        [string]$UserAccountCode, # アカウントコード
 
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$AccountName, # アカウント名
+        [string]$UserAccountName, # アカウント名
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$MailServerId = '1', # メールサーバーID
@@ -47,11 +47,11 @@ function New-GrnMailAccount {
     }
     Process {
 
-        if (-not $AccountCode) {
-            $AccountCode = $Email
+        if (-not $UserAccountCode) {
+            $UserAccountCode = $Email
         }
-        if (-not $AccountName) {
-            $AccountName = $Email
+        if (-not $UserAccountName) {
+            $UserAccountName = $Email
         }
 
         try {
