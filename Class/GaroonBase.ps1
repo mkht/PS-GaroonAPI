@@ -10,35 +10,35 @@ Class GaroonBase : GaroonClass {
     [Object[]]GetApplicationStatus() {
         $Action = "BaseGetApplicationStatus"
         $ParamBody = '<parameters></parameters>'
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.BaseGetApplicationStatusResponse.returns.application
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.BaseGetApplicationStatusResponse.returns.application
     }
 
     #ユーザーIDからユーザーを取得する
     # 注意:"ユーザーID"はガルーン内のIDで、ログイン名とは異なる
     [Object[]]GetUsersById([int[]]$UserId) {
         $Action = "BaseGetUsersById"
-        [string[]]$body = $UserId | Foreach-Object {"<user_id>{0}</user_id>" -f $_}
+        [string[]]$body = $UserId | Foreach-Object { "<user_id>{0}</user_id>" -f $_ }
         $ParamBody = ('<parameters xmlns="">{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.BaseGetUsersByIdResponse.returns.user
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.BaseGetUsersByIdResponse.returns.user
     }
 
     #ログイン名からユーザーを取得する
     [Object[]]GetUsersByLoginName([string[]]$LoginName) {
         $Action = "BaseGetUsersByLoginName"
-        [string[]]$body = $LoginName | Foreach-Object {"<login_name>{0}</login_name>" -f $_}
+        [string[]]$body = $LoginName | Foreach-Object { "<login_name>{0}</login_name>" -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.BaseGetUsersByLoginNameResponse.returns.user
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.BaseGetUsersByLoginNameResponse.returns.user
     }
 
     #組織IDから組織情報を取得する
     [Object[]]GetOrganizationsById([int[]]$OrganizationId) {
         $Action = "BaseGetOrganizationsById"
-        [string[]]$body = $OrganizationId | Foreach-Object {"<organization_id>{0}</organization_id>" -f $_}
+        [string[]]$body = $OrganizationId | Foreach-Object { "<organization_id>{0}</organization_id>" -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.BaseGetOrganizationsByIdResponse.returns.organization
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.BaseGetOrganizationsByIdResponse.returns.organization
     }
 }

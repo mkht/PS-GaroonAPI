@@ -110,29 +110,29 @@ class GaroonClass {
     # リクエストを投げる
     # @Private
     [xml]Request([string]$RequestXml) {
-        return $this.TestReponseXml([GaroonClass]::InvokeSOAPRequest($RequestXml, $this.RequestURI))
+        return $this.TestResponseXml([GaroonClass]::InvokeSOAPRequest($RequestXml, $this.RequestURI))
     }
 
     # 任意のAPIを叩く。 メソッドとして用意してないAPIを叩く必要があるとき用
     # @Public
     [Object[]]InvokeAnyApi($Action, $RequestBody) {
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $RequestBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $RequestBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body
     }
 
     # レスポンスがエラー情報を含んでいる場合はエラーを出す。正常なら入力XMLをそのまま返却
     # @Private
-    [xml]TestReponseXml([xml]$ReponseXml) {
-        if (-not $ReponseXml) {
+    [xml]TestResponseXml([xml]$ResponseXml) {
+        if (-not $ResponseXml) {
             $msg = 'No Response returned.'
             # Write-Warning $msg
             throw $msg    # throwとWrite-Errorどっちがいいんだろう？
         }
-        if ($Fault = $ReponseXml.Envelope.Body.Fault) {
+        if ($Fault = $ResponseXml.Envelope.Body.Fault) {
             $msg = ("[ERROR][{0}] {1}" -f $Fault.Detail.Code, $Fault.Reason.Text)
             # Write-Warning $msg
             throw $msg
         }
-        return $ReponseXml
+        return $ResponseXml
     }
 }

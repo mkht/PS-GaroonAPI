@@ -55,7 +55,7 @@ class MailSetting {
         $attr += ('mail_server_id="{0}"' -f [string]$this.MailServerId)
         $attr += ('email="{0}"' -f $this.Email)
         $attr += ('acount_name="{0}"' -f $this.AccountName)  # スペルミスはGaronnAPIの仕様
-        if ($this.Password) {$attr += ('password="{0}"' -f $this.Password)}
+        if ($this.Password) { $attr += ('password="{0}"' -f $this.Password) }
         $attr += ('leave_server_mail="{0}"' -f $this.LeaveServerMail.ToString().ToLower())
         $attr += ('deactivate_user_account="{0}"' -f $this.Deactivate.ToString().ToLower())
         return [string]('<mail_setting {0}></mail_setting>' -f ($attr -join ' '))
@@ -98,14 +98,14 @@ Class GaroonMail : GaroonClass {
     [MailUserAccount[]]CreateUserAccount([Object[]]$MailUserAccount) {
         #入力を[MailUserAccount[]]にすると動かない…なぜ？
         $MailUserAccount | ForEach-Object {
-            if ($_.GetType().FullName -ne "MailUserAccount") {return $null} # Type check
+            if ($_.GetType().FullName -ne "MailUserAccount") { return $null } # Type check
         }
         $Action = "MailCreateUserAccount"
-        [string[]]$body = $MailUserAccount | Foreach-Object {('<mail_user_accounts xmlns="">{0}</mail_user_accounts>' -f $_.GetMailUserAccountString())}
+        [string[]]$body = $MailUserAccount | Foreach-Object { ('<mail_user_accounts xmlns="">{0}</mail_user_accounts>' -f $_.GetMailUserAccountString()) }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.MailCreateUserAccountResponse.returns.user_accounts |
-            ForEach-Object {[MailUserAccount]::new( @{
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.MailCreateUserAccountResponse.returns.user_accounts |`
+            ForEach-Object { [MailUserAccount]::new( @{
                     AccountId       = $_.account_info.account_id;
                     UserId          = $_.account_info.user_id;
                     UserAccountCode = $_.account_info.user_acount_code
@@ -124,14 +124,14 @@ Class GaroonMail : GaroonClass {
     #メールアカウントを更新する
     [MailUserAccount[]]EditUserAccount([Object[]]$MailUserAccount) {
         $MailUserAccount | ForEach-Object {
-            if ($_.GetType().FullName -ne "MailUserAccount") {return $null} # Type check
+            if ($_.GetType().FullName -ne "MailUserAccount") { return $null } # Type check
         }
         $Action = "MailEditUserAccount"
-        [string[]]$body = $MailUserAccount | Foreach-Object {'<edit_user_accounts xmlns="">{0}</edit_user_accounts>' -f $_.GetMailUserAccountString()}
+        [string[]]$body = $MailUserAccount | Foreach-Object { '<edit_user_accounts xmlns="">{0}</edit_user_accounts>' -f $_.GetMailUserAccountString() }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.MailEditUserAccountResponse.returns.user_accounts |
-            ForEach-Object {[MailUserAccount]::new( @{
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.MailEditUserAccountResponse.returns.user_accounts |`
+            ForEach-Object { [MailUserAccount]::new( @{
                     AccountId       = $_.account_info.account_id;
                     UserId          = $_.account_info.user_id;
                     UserAccountCode = $_.account_info.user_acount_code
@@ -151,7 +151,7 @@ Class GaroonMail : GaroonClass {
     [void]DeleteUserAccount([string]$AccountId, [bool]$DeleteAllEmail) {
         $Action = "MailDeleteUserAccount"
         $ParamBody = ('<parameters><delete_user_accounts xmlns="" account_id="{0}" delete_all_email="{1}"></delete_user_accounts></parameters>' -f $AccountId, $DeleteAllEmail.ToString().ToLower())
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return
     }
 
@@ -159,9 +159,9 @@ Class GaroonMail : GaroonClass {
     # API 実行ユーザー以外のユーザーのアカウントを取得することはできません。
     [Object[]]GetAccountsById([string[]]$AccountId) {
         $Action = "MailGetAccountsById"
-        [string[]]$body = $AccountId | Foreach-Object {'<account_id xmlns="">{0}</account_id> ' -f $_}
+        [string[]]$body = $AccountId | Foreach-Object { '<account_id xmlns="">{0}</account_id> ' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
-        $ReponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ReponseXml.Envelope.Body.MailGetAccountsByIdResponse.returns.account
+        $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
+        return $ResponseXml.Envelope.Body.MailGetAccountsByIdResponse.returns.account
     }
 }
