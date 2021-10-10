@@ -23,13 +23,16 @@ function New-GrnMailAccount {
         [string]$Email, # メールアドレス
         
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$UserAccountCode, # アカウントコード
+        [string]$UserAccountCode, # ユーザーアカウントコード
 
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$UserAccountName, # アカウント名
+        [string]$UserAccountName, # ユーザーアカウント名
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$MailServerId = '1', # メールサーバーID
+
+        [Parameter(ValueFromPipelineByPropertyName)]
+        [string]$EmailAccount, # 受信メールアカウント
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [bool]$LeaveServerMail = $false, # メールサーバーにメールを残す
@@ -77,7 +80,7 @@ function New-GrnMailAccount {
             UserAccountName = $UserAccountName
             MailServerId    = $MailServerId
             Email           = $Email
-            AccountName     = $UserAccountName
+            AccountName     = $EmailAccount
             Password        = $Password
             LeaveServerMail = $LeaveServerMail
             Deactivate      = $Invalid
