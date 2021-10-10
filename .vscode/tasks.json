@@ -1,17 +1,22 @@
 {
-    "version": "0.1.0",
+    "version": "2.0.0",
     "command": "powershell",
     "args": [
         "-ExecutionPolicy",
         "Bypass",
         "-NoProfile"
         ],
-    "suppressTaskName": true,
     "tasks": [
         {
-            "taskName": "install",
-            "showOutput": "always",
-            "args": ["-File","${cwd}/Task/install.ps1"]
+            "label": "install",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-NoProfile",
+                "-File",
+                "${cwd}/Task/install.ps1"
+            ],
+            "problemMatcher": []
         }
     ]
 }
