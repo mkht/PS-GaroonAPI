@@ -16,6 +16,8 @@
     ログイン名
 .PARAMETER Password
     パスワード
+.PARAMETER DisplayName
+    表示名
 .PARAMETER Position
     表示優先度
 .PARAMETER Invalid
@@ -56,8 +58,7 @@
     ユーザに設定する付加情報が多い場合、パラメータ設定に"スプラッティング"を使用すると便利です
 #>
 
-function New-GrnUser
-{
+function New-GrnUser {
     [CmdletBinding()]
     Param
     (
@@ -127,8 +128,8 @@ function New-GrnUser
                 Write-Error $msg
                 return
             }
-            $local:flat = @($Orgs | foreach {$_} | sort Id -Unique)
-            $local:P_OrgId = [int]$flat.Where( {$_.OrganizationName -eq $PrimaryOrganization}).Id
+            $local:flat = @($Orgs | foreach { $_ } | sort Id -Unique)
+            $local:P_OrgId = [int]$flat.Where( { $_.OrganizationName -eq $PrimaryOrganization }).Id
             $local:OrgIds = [int[]]$flat.Id
         }
         else {
