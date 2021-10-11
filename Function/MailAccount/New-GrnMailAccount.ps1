@@ -38,7 +38,7 @@ function New-GrnMailAccount {
         [bool]$LeaveServerMail = $false, # メールサーバーにメールを残す
 
         [Parameter(ValueFromPipelineByPropertyName)]
-        [string]$Invalid = $false, # アカウント停止
+        [bool]$Invalid = $false, # アカウント停止
 
         [parameter(DontShow, ValueFromPipelineByPropertyName)]
         [string]$Id    # ユーザID（隠しパラメータ）
