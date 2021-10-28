@@ -12,20 +12,20 @@ function Get-RandomName () {
     -join ($MojiA + $MojiB)
 }
 
-Describe "Tests of New-GrnOrganization" {
+Describe 'Tests of New-GrnOrganization' {
     # 要注意： 本テストを実行するには事前にガルーンデモサイトで「事前設定の反映」を実施しておく必要あり
     $GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
-    $ValidCred = New-Object PsCredential "sato", (ConvertTo-SecureString "sato" -asplaintext -force)
+    $ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
 
     $BWarn = $global:WarningPreference
     $global:WarningPreference = 'SilentlyContinue'
 
     Context '組織の新規作成（組織コード指定あり,親組織なし）' {
         $OrgName = Get-RandomName
-        $Code = -join ((1..9) | % {Get-Random -input ([char[]]((48..57) + (65..90) + (97..122)))})
+        $Code = -join ((1..9) | % { Get-Random -input ([char[]]((48..57) + (65..90) + (97..122))) })
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = New-GrnOrganization -OrganizationName $OrgName -OrganizationCode $Code -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = New-GrnOrganization -OrganizationName $OrgName -OrganizationCode $Code -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
         It "正しく組織が作成できているか（$OrgName）" {
@@ -33,7 +33,7 @@ Describe "Tests of New-GrnOrganization" {
             $Org1.Id | Should Not BeNullOrEmpty
         }
 
-        It "親組織は存在しないこと" {
+        It '親組織は存在しないこと' {
             $Org1.ParentOrganization | Should BeNullOrEmpty
         }
 
@@ -47,8 +47,8 @@ Describe "Tests of New-GrnOrganization" {
     Context '組織の新規作成（組織コード指定なし,親組織なし）' {
         $OrgName = Get-RandomName
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = New-GrnOrganization -OrganizationName $OrgName -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = New-GrnOrganization -OrganizationName $OrgName -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
         It "正しく組織が作成できているか（$OrgName）" {
@@ -57,7 +57,7 @@ Describe "Tests of New-GrnOrganization" {
             $Org1.Id | Should Not BeNullOrEmpty
         }
 
-        It "親組織は存在しないこと" {
+        It '親組織は存在しないこと' {
             $Org1.ParentOrganization | Should BeNullOrEmpty
         }
 
@@ -68,8 +68,8 @@ Describe "Tests of New-GrnOrganization" {
         $OrgName = Get-RandomName
         $Parent = '企画部'
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = New-GrnOrganization -OrganizationName $OrgName -ParentOrganization $Parent -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = New-GrnOrganization -OrganizationName $OrgName -ParentOrganization $Parent -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
         It "正しく組織が作成できているか（$OrgName）" {
@@ -88,12 +88,12 @@ Describe "Tests of New-GrnOrganization" {
     Context '組織の新規作成（パイプライン入力,組織コードあり,親組織あり）' {
         $Parameter = [PSCustomObject]@{
             Name   = Get-RandomName
-            Code   = -join ((1..9) | % {Get-Random -input ([char[]]((48..57) + (65..90) + (97..122)))})
+            Code   = -join ((1..9) | % { Get-Random -input ([char[]]((48..57) + (65..90) + (97..122))) })
             Parent = '経理部'
         }
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = $Parameter | New-GrnOrganization -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = $Parameter | New-GrnOrganization -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
         It "正しく組織が作成できているか（$($Parameter.Name)）" {
@@ -110,8 +110,8 @@ Describe "Tests of New-GrnOrganization" {
         $OrgName = Get-RandomName
         $script:Org1 = 'This variable must be null'
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = New-GrnOrganization -OrganizationName $OrgName -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = New-GrnOrganization -OrganizationName $OrgName -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Not Throw
         }
 
         It "正しく組織が作成できているか（$OrgName）" {
@@ -121,7 +121,7 @@ Describe "Tests of New-GrnOrganization" {
             $OrgX.Id | Should Not BeNullOrEmpty
         }
 
-        It "なにも出力されないこと確認" {
+        It 'なにも出力されないこと確認' {
             $Org1 | Should BeNullOrEmpty
         }
 
@@ -133,8 +133,8 @@ Describe "Tests of New-GrnOrganization" {
         $OrgCode = 'Executive'  #「役員」と同じ組織コード
         $ExpectErrorMsg = '[ERROR][GRN_CMMN_00103] すでに存在する組織コードの組織を指定しています。'
 
-        It "[GRN_CMMN_00103]エラーが発生すること" {
-            {New-GrnOrganization -OrganizationName $OrgName -OrganizationCode $OrgCode -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw $ExpectErrorMsg
+        It '[GRN_CMMN_00103]エラーが発生すること' {
+            { New-GrnOrganization -OrganizationName $OrgName -OrganizationCode $OrgCode -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw $ExpectErrorMsg
         }
 
         It "組織が作成されていないこと($OrgName)" {
@@ -150,8 +150,8 @@ Describe "Tests of New-GrnOrganization" {
         $Parent = '存在しない組織'
         $ExpectErrorMsg = '親組織が見つかりません'
 
-        It "エラーが発生すること" {
-            {New-GrnOrganization -OrganizationName $OrgName -ParentOrganization $Parent -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw $ExpectErrorMsg
+        It 'エラーが発生すること' {
+            { New-GrnOrganization -OrganizationName $OrgName -ParentOrganization $Parent -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw $ExpectErrorMsg
         }
 
         It "組織が作成されていないこと($OrgName)" {

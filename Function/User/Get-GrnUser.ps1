@@ -54,7 +54,7 @@ function Get-GrnUser {
 
             switch ($user.status) {
                 0 { $Invalid = $false }   #Enable
-                1 { $Invalid = $true}  #Disable
+                1 { $Invalid = $true }  #Disable
                 2 { $Invalid = $true }  #Deleted
                 Default {}
             }

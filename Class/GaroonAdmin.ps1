@@ -82,7 +82,7 @@ class UserInfo {
 # システム管理API群実行用クラス
 # https://cybozudev.zendesk.com/hc/ja/sections/200484594-%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E7%AE%A1%E7%90%86
 Class GaroonAdmin : GaroonClass {
-    [string] $ApiSuffix = "/sysapi/admin/api"
+    [string] $ApiSuffix = '/sysapi/admin/api'
     GaroonAdmin() : base() {}
     GaroonAdmin([string]$URL) : base($URL) {}
     GaroonAdmin([string]$URL, [PSCredential] $Credential) : base($URL, $Credential) {}
@@ -92,7 +92,7 @@ Class GaroonAdmin : GaroonClass {
     # Offset: 取得開始するユーザーのオフセット
     # Limit: 取得するユーザー数の上限
     [int[]]GetUserIds([int]$Offset, [int]$Limit) {
-        $Action = "AdminGetUserIds"
+        $Action = 'AdminGetUserIds'
         $ParamBody = ('<parameters><offset xmlns="">{0}</offset><limit xmlns="">{1}</limit></parameters>' -f [string]$Offset, [string]$Limit)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetUserIdsResponse.returns.userId
@@ -101,8 +101,8 @@ Class GaroonAdmin : GaroonClass {
     #ユーザーID一覧を取得する（全取得)
     # 注意:"ユーザーID"はガルーン内のIDで、ログイン名とは異なる
     [int[]]GetUserIds() {
-        $Action = "AdminGetUserIds"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminGetUserIds'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetUserIdsResponse.returns.userId
     }
@@ -110,12 +110,13 @@ Class GaroonAdmin : GaroonClass {
     #ユーザーIDからユーザー情報を取得する
     # 取得できるのはユーザID、ログイン名、表示名のみ。より詳細な情報が必要な場合はGaroonBase.GetUsersById()を使う
     [Object[]]GetUserDetailByIds([int[]]$UserId) {
-        $Action = "AdminGetUserDetailByIds"
-        [string[]]$body = $UserId | Foreach-Object { "<userId>{0}</userId>" -f $_ }
+        $Action = 'AdminGetUserDetailByIds'
+        [string[]]$body = $UserId | ForEach-Object { '<userId>{0}</userId>' -f $_ }
         $ParamBody = ('<parameters xmlns="">{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.GetUserDetailByIdsResponse.returns.userDetail |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.GetUserDetailByIdsResponse.returns.userDetail |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 userId       = [int]$_.userId;
                 login_name   = $_.login_name.Trim();
                 display_name = $_.display_name.Trim()
@@ -125,15 +126,15 @@ Class GaroonAdmin : GaroonClass {
 
     #ユーザー数を取得する
     [int]CountUsers() {
-        $Action = "AdminCountUsers"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminCountUsers'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountUsersResponse.returns.number_users
     }
 
     #組織内のユーザー数を取得する
     [int]CountUsersInOrg([int]$OrgId) {
-        $Action = "AdminCountUsersInOrg"
+        $Action = 'AdminCountUsersInOrg'
         $ParamBody = ('<parameters><orgId>{0}</orgId></parameters>' -f [string]$OrgId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountUsersInOrgResponse.returns.number_users
@@ -141,7 +142,7 @@ Class GaroonAdmin : GaroonClass {
 
     #組織内のユーザーID一覧を取得する
     [int[]]GetUserIdsInOrg([int]$OrgId) {
-        $Action = "AdminGetUserIdsInOrg"
+        $Action = 'AdminGetUserIdsInOrg'
         $ParamBody = ('<parameters><orgId>{0}</orgId></parameters>' -f [string]$OrgId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetUserIdsInOrgResponse.returns.userId
@@ -149,23 +150,23 @@ Class GaroonAdmin : GaroonClass {
 
     #組織に未所属のユーザー数を取得する
     [int]CountNoGroupUsers() {
-        $Action = "AdminCountNoGroupUsers"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminCountNoGroupUsers'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountNoGroupUsersResponse.returns.number_users
     }
 
     #組織に未所属のユーザーIDを取得する
     [int[]]GetNoGroupUserIds() {
-        $Action = "AdminGetNoGroupUserIds"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminGetNoGroupUserIds'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetNoGroupUserIdsResponse.returns.userId
     }
 
     #ユーザーが所属している組織数を取得する
     [int]CountOrgsOfUser([int]$UserId) {
-        $Action = "AdminCountOrgsOfUser"
+        $Action = 'AdminCountOrgsOfUser'
         $ParamBody = ('<parameters><userId>{0}</userId></parameters>' -f [string]$UserId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountOrgsOfUserResponse.returns.number_orgs
@@ -173,7 +174,7 @@ Class GaroonAdmin : GaroonClass {
 
     #ユーザーが所属している組織のIDを取得する
     [int[]]GetOrgIdsOfUser([int]$UserId) {
-        $Action = "AdminGetOrgIdsOfUser"
+        $Action = 'AdminGetOrgIdsOfUser'
         $ParamBody = ('<parameters><userId>{0}</userId></parameters>' -f [string]$UserId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetOrgIdsOfUserResponse.returns.orgId
@@ -181,7 +182,7 @@ Class GaroonAdmin : GaroonClass {
 
     #ログイン名からユーザーIDを取得する
     [int]GetUserIdByLoginName([string]$LoginName) {
-        $Action = "AdminGetUserIdByLoginName"
+        $Action = 'AdminGetUserIdByLoginName'
         $ParamBody = ('<parameters><login_name>{0}</login_name></parameters>' -f $LoginName)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.GetUserIdByLoginNameResponse.returns.userId
@@ -194,7 +195,7 @@ Class GaroonAdmin : GaroonClass {
 
     #ユーザーを追加する2
     [object[]]AddUserAccount([string]$LoginName, [string]$DisplayName, [string]$Password, [Object]$UserInfo) {
-        $Action = "AdminAddUserAccount"
+        $Action = 'AdminAddUserAccount'
 
         $_UserInfo = $null
         if ($UserInfo) {
@@ -212,8 +213,9 @@ Class GaroonAdmin : GaroonClass {
 
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.AddUserAccountResponse.returns.userAccount |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.AddUserAccountResponse.returns.userAccount |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 userId       = [int]$_.userId;
                 login_name   = $_.login_name.Trim();
                 display_name = $_.display_name.Trim()
@@ -223,8 +225,8 @@ Class GaroonAdmin : GaroonClass {
 
     #ユーザーを削除する
     [int[]]RemoveUsersByIds([int[]]$UserId) {
-        $Action = "AdminRemoveUsersByIds"
-        [string[]]$body = $UserId | Foreach-Object { "<userId>{0}</userId>" -f $_ }
+        $Action = 'AdminRemoveUsersByIds'
+        [string[]]$body = $UserId | ForEach-Object { '<userId>{0}</userId>' -f $_ }
         $ParamBody = ('<parameters xmlns="">{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.RemoveUsersByIdsResponse.returns.affected_userId
@@ -238,7 +240,7 @@ Class GaroonAdmin : GaroonClass {
         if ($UserInfo) {
             $_UserInfo = [UserInfo]::New($UserInfo).GetUserInfoString()
         }
-        $Action = "AdminModifyUserAccount"
+        $Action = 'AdminModifyUserAccount'
 
         $body = @(('<userId>{0}</userId>' -f [string]$UserId))
         if ($LoginName) { $body += ('<login_name xmlns="">{0}</login_name>' -f $LoginName) }
@@ -251,8 +253,9 @@ Class GaroonAdmin : GaroonClass {
 
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.ModifyUserAccountResponse.returns.userAccount |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.ModifyUserAccountResponse.returns.userAccount |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 userId       = [int]$_.userId;
                 login_name   = $_.login_name.Trim();
                 display_name = $_.display_name.Trim()
@@ -262,8 +265,8 @@ Class GaroonAdmin : GaroonClass {
 
     #ユーザーを組織に所属させる
     [int[]]SetOrgsOfUser([int]$UserId, [int[]]$OrgId) {
-        $Action = "AdminSetOrgsOfUser"
-        [string[]]$body = $OrgId | Foreach-Object { "<orgId>{0}</orgId>" -f $_ }
+        $Action = 'AdminSetOrgsOfUser'
+        [string[]]$body = $OrgId | ForEach-Object { '<orgId>{0}</orgId>' -f $_ }
         $ParamBody = ('<parameters xmlns=""><userId>{0}</userId>{1}</parameters>' -f [string]$UserId, ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.SetOrgsOfUserResponse.returns.affected_orgId
@@ -271,15 +274,16 @@ Class GaroonAdmin : GaroonClass {
 
     #組織にユーザーを所属させる
     [object[]]AddUsersToOrg([int]$OrgId, [int[]]$UserId) {
-        $Action = "AdminAddUsersToOrg"
+        $Action = 'AdminAddUsersToOrg'
         $body = @(
             ('<orgId>{0}</orgId>' -f $OrgId)
         )
-        $body += $UserId | Foreach-Object { "<userId>{0}</userId>" -f $_ }
+        $body += $UserId | ForEach-Object { '<userId>{0}</userId>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.AddUsersToOrgResponse.returns |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.AddUsersToOrgResponse.returns |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 number_relationships_affected = [int]$_.number_relationships_affected;
                 affected_orgId                = [int]$_.affected_orgId;
                 affected_userId               = [int[]]$_.affected_userId;
@@ -289,7 +293,7 @@ Class GaroonAdmin : GaroonClass {
 
     #組織を追加する
     [object[]]AddOrg([string]$OrgCode, [string]$OrgName, [int]$ParentOrgId) {
-        $Action = "AdminAddOrg"
+        $Action = 'AdminAddOrg'
         $body = @(
             ('<org_code>{0}</org_code>' -f $OrgCode),
             ('<org_name>{0}</org_name>' -f $OrgName)
@@ -300,8 +304,9 @@ Class GaroonAdmin : GaroonClass {
 
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.AddOrgResponse.returns |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.AddOrgResponse.returns |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 orgId        = [int]$_.org_info.orgId;
                 org_code     = [string]$_.org_info.org_code.Trim();
                 org_name     = [string]$_.org_info.org_name.Trim();
@@ -317,7 +322,7 @@ Class GaroonAdmin : GaroonClass {
 
     #組織を更新する
     [object[]]ModifyOrgInfo([int]$OrgId, [string]$OrgCode, [string]$OrgName) {
-        $Action = "AdminModifyOrgInfo"
+        $Action = 'AdminModifyOrgInfo'
         $body = @(
             ('<orgId>{0}</orgId>' -f [string]$OrgId),
             ('<org_code>{0}</org_code>' -f $OrgCode),
@@ -325,8 +330,9 @@ Class GaroonAdmin : GaroonClass {
         )
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.ModifyOrgInfoResponse.returns.org_info |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.ModifyOrgInfoResponse.returns.org_info |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 orgId    = [int]$_.orgId;
                 org_code = [string]$_.org_code.Trim();
                 org_name = [string]$_.org_name.Trim();
@@ -336,8 +342,8 @@ Class GaroonAdmin : GaroonClass {
 
     #組織を削除する
     [int[]]RemoveOrgsByIds([int]$OrgId) {
-        $Action = "AdminRemoveOrgsByIds"
-        [string[]]$body = $OrgId | Foreach-Object { "<orgId>{0}</orgId>" -f $_ }
+        $Action = 'AdminRemoveOrgsByIds'
+        [string[]]$body = $OrgId | ForEach-Object { '<orgId>{0}</orgId>' -f $_ }
         $ParamBody = ('<parameters xmlns="">{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.RemoveOrgsByIdsResponse.returns.affected_orgId
@@ -345,15 +351,16 @@ Class GaroonAdmin : GaroonClass {
 
     #組織からユーザーを削除する
     [object[]]RemoveUsersFromOrg([int]$OrgId, [int[]]$UserId) {
-        $Action = "AdminRemoveUsersFromOrg"
+        $Action = 'AdminRemoveUsersFromOrg'
         $body = @(
             ('<orgId>{0}</orgId>' -f $OrgId)
         )
-        $body += $UserId | Foreach-Object { "<userId>{0}</userId>" -f $_ }
+        $body += $UserId | ForEach-Object { '<userId>{0}</userId>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.RemoveUsersFromOrgResponse.returns |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.RemoveUsersFromOrgResponse.returns |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 number_relationships_affected = [int]$_.number_relationships_affected;
                 affected_orgId                = [int]$_.affected_orgId;
                 affected_userId               = [int[]]$_.affected_userId;
@@ -363,15 +370,16 @@ Class GaroonAdmin : GaroonClass {
 
     #組織の親組織を変更する
     [object[]]AddChildrenOfOrg([int]$ParentOrgId, [int[]]$ChildOrgId) {
-        $Action = "AdminAddChildrenOfOrg"
+        $Action = 'AdminAddChildrenOfOrg'
         $body = @(
             ('<parent_orgId>{0}</parent_orgId>' -f $ParentOrgId)
         )
-        $body += $ChildOrgId | Foreach-Object { "<child_orgId>{0}</child_orgId>" -f $_ }
+        $body += $ChildOrgId | ForEach-Object { '<child_orgId>{0}</child_orgId>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.AddChildrenOfOrgResponse.returns |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.AddChildrenOfOrgResponse.returns |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 number_relationships_affected = [int]$_.number_relationships_affected;
                 affected_parent_orgId         = [int]$_.affected_parent_orgId;
                 affected_child_orgId          = [int[]]$_.affected_child_orgId;
@@ -381,16 +389,16 @@ Class GaroonAdmin : GaroonClass {
 
     #組織数を取得する
     [int]CountOrgs() {
-        $Action = "AdminCountOrgs"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminCountOrgs'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountOrgsResponse.returns.number_orgs
     }
 
     #組織IDを取得する（全取得)
     [int[]]GetOrgIds() {
-        $Action = "AdminGetOrgIds"
-        $ParamBody = "<parameters></parameters>"
+        $Action = 'AdminGetOrgIds'
+        $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetOrgIdsResponse.returns.orgId
     }
@@ -398,12 +406,13 @@ Class GaroonAdmin : GaroonClass {
     #組織IDから組織情報を取得する
     # より詳細な情報が必要な場合はGaroonBase.GetOrganizationsById()を使う
     [Object[]]GetOrgDetailByIds([int[]]$OrgId) {
-        $Action = "AdminGetOrgDetailByIds"
-        [string[]]$body = $OrgId | Foreach-Object { "<orgId>{0}</orgId>" -f $_ }
+        $Action = 'AdminGetOrgDetailByIds'
+        [string[]]$body = $OrgId | ForEach-Object { '<orgId>{0}</orgId>' -f $_ }
         $ParamBody = ('<parameters xmlns="">{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
-        return $ResponseXml.Envelope.Body.GetOrgDetailByIdsResponse.returns.orgDetail |
-        ForEach-Object { [PSCustomObject]@{
+        return $ResponseXml.Envelope.Body.GetOrgDetailByIdsResponse.returns.orgDetail |`
+            Where-Object { $null -ne $_ } |`
+            ForEach-Object { [PSCustomObject]@{
                 orgId    = [int]$_.orgId;
                 org_code = $_.org_code.Trim();
                 org_name = $_.org_name.Trim()
@@ -413,7 +422,7 @@ Class GaroonAdmin : GaroonClass {
 
     #子組織の数を取得する
     [int]CountChildOrgs([int]$ParentOrgId) {
-        $Action = "AdminCountChildOrgs"
+        $Action = 'AdminCountChildOrgs'
         $ParamBody = ('<parameters><parent_orgId>{0}</parent_orgId></parameters>' -f [string]$ParentOrgId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.CountChildOrgsResponse.returns.number_child_orgs
@@ -421,7 +430,7 @@ Class GaroonAdmin : GaroonClass {
 
     #子組織のIDを取得する
     [int[]]GetChildOrgs([int]$ParentOrgId) {
-        $Action = "AdminGetChildOrgs"
+        $Action = 'AdminGetChildOrgs'
         $ParamBody = ('<parameters><parent_orgId>{0}</parent_orgId></parameters>' -f [string]$ParentOrgId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int[]]$ResponseXml.Envelope.Body.GetChildOrgsResponse.returns.orgId
@@ -429,7 +438,7 @@ Class GaroonAdmin : GaroonClass {
 
     #親組織のIDを取得する
     [int]GetParentOrgId([int]$ChildOrgId) {
-        $Action = "AdminGetParentOrgId"
+        $Action = 'AdminGetParentOrgId'
         $ParamBody = ('<parameters><child_orgId>{0}</child_orgId></parameters>' -f [string]$ChildOrgId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.GetParentOrgIdResponse.returns.parent_orgId
@@ -437,7 +446,7 @@ Class GaroonAdmin : GaroonClass {
 
     #組織コードから組織IDを取得する
     [int]GetOrgIdByOrgCode([string]$OrgCode) {
-        $Action = "AdminGetOrgIdByOrgCode"
+        $Action = 'AdminGetOrgIdByOrgCode'
         $ParamBody = ('<parameters><org_code>{0}</org_code></parameters>' -f $OrgCode)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.GetOrgIdByOrgCodeResponse.returns.orgId

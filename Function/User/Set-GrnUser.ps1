@@ -54,8 +54,7 @@
     Organizationパラメータに空の配列を渡すことで、どの組織にも所属させないよう設定できます
 #>
 
-function Set-GrnUser
-{
+function Set-GrnUser {
     [CmdletBinding()]
     Param
     (
@@ -96,7 +95,7 @@ function Set-GrnUser
 
         # Organizationに空配列が渡された場合は無所属ユーザにする
         if (($PSBoundParameters.ContainsKey('Organization')) -and (-not $Organization)) {
-            Write-Warning ("このユーザはどの組織にも所属しません。")
+            Write-Warning ('このユーザはどの組織にも所属しません。')
             $NoOrg = $true
         }
 
@@ -119,7 +118,7 @@ function Set-GrnUser
 
         # Organizationが指定されているがPrimaryOrganizationが未指定の場合は未所属とする
         if ((-not $PrimaryOrganization) -and ($Organization)) {
-            if (!$NoOrg) {Write-Warning ("優先する組織が指定されていません。このユーザはどの組織にも所属しません。")}
+            if (!$NoOrg) { Write-Warning ('優先する組織が指定されていません。このユーザはどの組織にも所属しません。') }
             $NoOrg = $true
         }
 
@@ -129,12 +128,12 @@ function Set-GrnUser
         if ($Organization -and !($NoOrg)) {
             $Orgs = Get-GrnOrganization -OrganizationName $Organization -URL $URL -Credential $Credential -NoDetail
             if ($Orgs -contains $null) {
-                $msg = ("所属組織一覧に存在しない組織名が含まれています")
+                $msg = ('所属組織一覧に存在しない組織名が含まれています')
                 Write-Error $msg
                 return
             }
-            $local:flat = @($Orgs | foreach {$_} | sort Id -Unique)
-            $local:P_OrgId = [int]$flat.Where( {$_.OrganizationName -eq $PrimaryOrganization}).Id
+            $local:flat = @($Orgs | foreach { $_ } | sort Id -Unique)
+            $local:P_OrgId = [int]$flat.Where( { $_.OrganizationName -eq $PrimaryOrganization }).Id
             $local:OrgIds = [int[]]$flat.Id
         }
         else {

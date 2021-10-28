@@ -98,7 +98,7 @@ function New-GrnUser {
 
         # 組織情報のチェック（「優先組織」が指定されていない場合、「所属組織」は無視する）
         if ((-not $PrimaryOrganization) -and ($Organization)) {
-            Write-Warning ("優先する組織が指定されていません。このユーザはどの組織にも所属しません。")
+            Write-Warning ('優先する組織が指定されていません。このユーザはどの組織にも所属しません。')
             $Organization = $null
         }
 
@@ -124,7 +124,7 @@ function New-GrnUser {
         if ($Organization) {
             $Orgs = Get-GrnOrganization -OrganizationName $Organization -URL $URL -Credential $Credential -NoDetail
             if ($Orgs -contains $null) {
-                $msg = ("所属組織一覧に存在しない組織名が含まれています")
+                $msg = ('所属組織一覧に存在しない組織名が含まれています')
                 Write-Error $msg
                 return
             }

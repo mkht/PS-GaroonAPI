@@ -65,7 +65,7 @@ function Add-GrnOrganizationMember {
         #メンバー追加
         $AddUserIds = [int[]]($Members | ForEach-Object {
                 $private:name = $_
-                try {$private:user = $base.GetUsersByLoginName($name)}catch {}
+                try { $private:user = $base.GetUsersByLoginName($name) }catch {}
                 if ($user.key) {
                     $user.key
                 }

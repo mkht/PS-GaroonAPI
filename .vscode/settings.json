@@ -1,0 +1,6 @@
+{
+    "files.trimTrailingWhitespace": true,
+    "powershell.codeFormatting.useConstantStrings": true,
+    "powershell.codeFormatting.useCorrectCasing": true,
+    "editor.formatOnSave": true
+}

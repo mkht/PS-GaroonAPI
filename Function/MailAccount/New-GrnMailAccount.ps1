@@ -15,13 +15,13 @@ function New-GrnMailAccount {
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$LoginName, # ログイン名
-        
+
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$Password, # パスワード
 
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)] 
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$Email, # メールアドレス
-        
+
         [Parameter(ValueFromPipelineByPropertyName)]
         [string]$UserAccountCode, # ユーザーアカウントコード
 
@@ -98,7 +98,7 @@ function New-GrnMailAccount {
                 return
             }
             elseif ($_.Exception.Message -match 'GRN_MAIL_24105') {
-                Write-Error ("このユーザは既にメールアカウントが設定されています")
+                Write-Error ('このユーザは既にメールアカウントが設定されています')
                 return
             }
             else {

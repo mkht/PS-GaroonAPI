@@ -64,7 +64,7 @@ function Remove-GrnOrganizationMember {
         #メンバー削除
         $RemoveUserIds = [int[]]($Members | ForEach-Object {
                 $private:name = $_
-                try {$private:user = $base.GetUsersByLoginName($name)}catch {}
+                try { $private:user = $base.GetUsersByLoginName($name) }catch {}
                 if ($user.key) {
                     $user.key
                 }

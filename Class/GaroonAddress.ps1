@@ -30,14 +30,14 @@
         if (-not [string]::IsNullOrWhiteSpace($Info.BookId)) { $this.BookId = ([string]$Info.BookId).Trim() }
         if (-not [string]::IsNullOrWhiteSpace($Info.CardId)) { $this.CardId = ([string]$Info.CardId).Trim() }
         if ($null -ne $Info.Version) { $this.Version = $Info.Version }
-        if ($null -ne $Info.Creator) { 
+        if ($null -ne $Info.Creator) {
             $this.Creator = [pscustomobject]@{
                 user_id = ([string]$Info.Creator.user_id).Trim()
                 name    = [string]$Info.Creator.name
                 date    = [datetime]$Info.Creator.date
             }
         }
-        if ($null -ne $Info.Modifier) { 
+        if ($null -ne $Info.Modifier) {
             $this.Modifier = [pscustomobject]@{
                 user_id = ([string]$Info.Modifier.user_id).Trim()
                 name    = [string]$Info.Modifier.name
@@ -153,15 +153,15 @@ class BookInfo {
 # アドレス帳API群実行用クラス
 # https://cybozudev.zendesk.com/hc/ja/sections/200483090-%E3%83%A1%E3%83%BC%E3%83%AB
 Class GaroonAddress : GaroonClass {
-    [string] $ApiSuffix = "/cbpapi/address/api"
+    [string] $ApiSuffix = '/cbpapi/address/api'
     GaroonAddress() : base() {}
     GaroonAddress([string]$URL) : base($URL) {}
     GaroonAddress([string]$URL, [PSCredential] $Credential) : base($URL, $Credential) {}
 
     #共有アドレス帳を取得する
     [BookInfo[]]GetSharedBooksById([int[]]$BookId) {
-        $Action = "AddressGetSharedBooksById"
-        [string[]]$body = $BookId | Foreach-Object { "<book_id>{0}</book_id>" -f $_ }
+        $Action = 'AddressGetSharedBooksById'
+        [string[]]$body = $BookId | ForEach-Object { '<book_id>{0}</book_id>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetSharedBooksByIdResponse.returns.book |`
@@ -181,8 +181,8 @@ Class GaroonAddress : GaroonClass {
 
     #個人アドレス帳を取得する
     [BookInfo[]]GetPersonalBooksById([int[]]$BookId) {
-        $Action = "AddressGetPersonalBooksById"
-        [string[]]$body = $BookId | Foreach-Object { "<book_id>{0}</book_id>" -f $_ }
+        $Action = 'AddressGetPersonalBooksById'
+        [string[]]$body = $BookId | ForEach-Object { '<book_id>{0}</book_id>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetPersonalBooksByIdResponse.returns.book |`
@@ -202,8 +202,8 @@ Class GaroonAddress : GaroonClass {
 
     #共有アドレス帳のアドレスを取得する
     [CardInfo[]]GetSharedCardsById([int[]]$CardId, [int]$BookId) {
-        $Action = "AddressGetSharedCardsById"
-        [string[]]$body = $CardId | Foreach-Object { "<card_id>{0}</card_id>" -f $_ }
+        $Action = 'AddressGetSharedCardsById'
+        [string[]]$body = $CardId | ForEach-Object { '<card_id>{0}</card_id>' -f $_ }
         $ParamBody = ('<parameters book_id="{1}">{0}</parameters>' -f ($body -join ''), $BookId)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetSharedCardsByIdResponse.returns.card |`
@@ -239,8 +239,8 @@ Class GaroonAddress : GaroonClass {
 
     #個人アドレス帳のアドレスを取得する
     [CardInfo[]]GetPersonalCardsById([int[]]$CardId) {
-        $Action = "AddressGetPersonalCardsById"
-        [string[]]$body = $CardId | Foreach-Object { "<card_id>{0}</card_id>" -f $_ }
+        $Action = 'AddressGetPersonalCardsById'
+        [string[]]$body = $CardId | ForEach-Object { '<card_id>{0}</card_id>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetPersonalCardsByIdResponse.returns.card |`
@@ -280,7 +280,7 @@ Class GaroonAddress : GaroonClass {
     }
 
     [CardInfo[]]SearchCards([string]$SearchText, [int]$BookId, [bool]$IgnoreCase) {
-        $Action = "AddressSearchCards"
+        $Action = 'AddressSearchCards'
         $ParamBody = ('<parameters book_id="{0}" case_sensitive="{1}" text="{2}"></parameters>' -f $BookId, (-not $IgnoreCase).ToString().ToLower(), $SearchText)
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressSearchCardsResponse.returns.card |`
@@ -317,10 +317,10 @@ Class GaroonAddress : GaroonClass {
     #アドレスを登録する
     [CardInfo[]]AddCards([Object[]]$Card, [int]$BookId) {
         $Card | ForEach-Object {
-            if ($_.GetType().FullName -ne "CardInfo") { return $null } # Type check
+            if ($_.GetType().FullName -ne 'CardInfo') { return $null } # Type check
             $_.BookId = $BookId
         }
-        $Action = "AddressAddCards"
+        $Action = 'AddressAddCards'
         [string[]]$body = $Card | ForEach-Object { '<add_card>{0}</add_card>' -f $_.GetCardInfoString() }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
@@ -360,18 +360,18 @@ Class GaroonAddress : GaroonClass {
         # Type check
         if ($Card -is [array]) {
             if ($Card.Count -ne 1) {
-                throw [ArgumentException]::new("Card must not be an array of objects.")
+                throw [ArgumentException]::new('Card must not be an array of objects.')
                 return $null
             }
             else {
                 $Card = $Card[0]
             }
         }
-        if ($Card.GetType().FullName -ne "CardInfo") { return $null }
+        if ($Card.GetType().FullName -ne 'CardInfo') { return $null }
 
         $Card.CardId = $CardId
         $Card.BookId = $BookId
-        $Action = "AddressModifyCards"
+        $Action = 'AddressModifyCards'
         [string[]]$body = $Card | ForEach-Object { '<modify_card>{0}</modify_card>' -f $_.GetCardInfoString() }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
@@ -408,7 +408,7 @@ Class GaroonAddress : GaroonClass {
 
     #共有アドレス帳のアドレスを削除する
     [void]RemoveSharedCards([int[]]$CardId, [int]$BookId) {
-        $Action = "AddressRemoveSharedCards"
+        $Action = 'AddressRemoveSharedCards'
         [string[]]$body = $CardId | ForEach-Object { '<card_id>{0}</card_id>' -f $_ }
         $ParamBody = ('<parameters book_id="{1}">{0}</parameters>' -f ($body -join ''), $BookId)
         $null = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
@@ -416,7 +416,7 @@ Class GaroonAddress : GaroonClass {
 
     #個人アドレス帳のアドレスを削除する
     [void]RemovePersonalCards([int[]]$CardId) {
-        $Action = "AddressRemovePersonalCards"
+        $Action = 'AddressRemovePersonalCards'
         [string[]]$body = $CardId | ForEach-Object { '<card_id>{0}</card_id>' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $null = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
@@ -424,7 +424,7 @@ Class GaroonAddress : GaroonClass {
 
     #閲覧可能なアドレス帳を確認する
     [int[]]GetReadAllowBooks() {
-        $Action = "AddressGetReadAllowBooks"
+        $Action = 'AddressGetReadAllowBooks'
         $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetReadAllowBooksResponse.returns.book_id
@@ -432,7 +432,7 @@ Class GaroonAddress : GaroonClass {
 
     #編集可能なアドレス帳を確認する
     [int[]]GetModifyAllowBooks() {
-        $Action = "AddressGetModifyAllowBooks"
+        $Action = 'AddressGetModifyAllowBooks'
         $ParamBody = '<parameters></parameters>'
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressGetModifyAllowBooksResponse.returns.book_id

@@ -16,8 +16,7 @@
     Example 1: ログイン名が'miyamizu'のユーザを削除します
 #>
 
-function Remove-GrnUser
-{
+function Remove-GrnUser {
     [CmdletBinding()]
     Param
     (
@@ -46,10 +45,10 @@ function Remove-GrnUser
                 Write-Verbose ("ユーザ`"$LoginName`"を削除します")
                 $Removed = $admin.RemoveUsersByIds($Id)
                 if ($Id -eq $Removed[0]) {
-                    Write-Verbose "ユーザが削除されました"
+                    Write-Verbose 'ユーザが削除されました'
                 }
                 else {
-                    Write-Warning "Unknown Error"
+                    Write-Warning 'Unknown Error'
                 }
             }
         }

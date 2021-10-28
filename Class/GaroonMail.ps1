@@ -89,7 +89,7 @@ class MailUserAccount {
 # メールAPI群実行用クラス
 # https://cybozudev.zendesk.com/hc/ja/sections/200483090-%E3%83%A1%E3%83%BC%E3%83%AB
 Class GaroonMail : GaroonClass {
-    [string] $ApiSuffix = "/cbpapi/mail/api"
+    [string] $ApiSuffix = '/cbpapi/mail/api'
     GaroonMail() : base() {}
     GaroonMail([string]$URL) : base($URL) {}
     GaroonMail([string]$URL, [PSCredential] $Credential) : base($URL, $Credential) {}
@@ -98,13 +98,14 @@ Class GaroonMail : GaroonClass {
     [MailUserAccount[]]CreateUserAccount([Object[]]$MailUserAccount) {
         #入力を[MailUserAccount[]]にすると動かない…なぜ？
         $MailUserAccount | ForEach-Object {
-            if ($_.GetType().FullName -ne "MailUserAccount") { return $null } # Type check
+            if ($_.GetType().FullName -ne 'MailUserAccount') { return $null } # Type check
         }
-        $Action = "MailCreateUserAccount"
-        [string[]]$body = $MailUserAccount | Foreach-Object { ('<mail_user_accounts xmlns="">{0}</mail_user_accounts>' -f $_.GetMailUserAccountString()) }
+        $Action = 'MailCreateUserAccount'
+        [string[]]$body = $MailUserAccount | ForEach-Object { ('<mail_user_accounts xmlns="">{0}</mail_user_accounts>' -f $_.GetMailUserAccountString()) }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.MailCreateUserAccountResponse.returns.user_accounts |`
+            Where-Object { $null -ne $_ } |`
             ForEach-Object { [MailUserAccount]::new( @{
                     AccountId       = $_.account_info.account_id;
                     UserId          = $_.account_info.user_id;
@@ -124,13 +125,14 @@ Class GaroonMail : GaroonClass {
     #メールアカウントを更新する
     [MailUserAccount[]]EditUserAccount([Object[]]$MailUserAccount) {
         $MailUserAccount | ForEach-Object {
-            if ($_.GetType().FullName -ne "MailUserAccount") { return $null } # Type check
+            if ($_.GetType().FullName -ne 'MailUserAccount') { return $null } # Type check
         }
-        $Action = "MailEditUserAccount"
-        [string[]]$body = $MailUserAccount | Foreach-Object { '<edit_user_accounts xmlns="">{0}</edit_user_accounts>' -f $_.GetMailUserAccountString() }
+        $Action = 'MailEditUserAccount'
+        [string[]]$body = $MailUserAccount | ForEach-Object { '<edit_user_accounts xmlns="">{0}</edit_user_accounts>' -f $_.GetMailUserAccountString() }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.MailEditUserAccountResponse.returns.user_accounts |`
+            Where-Object { $null -ne $_ } |`
             ForEach-Object { [MailUserAccount]::new( @{
                     AccountId       = $_.account_info.account_id;
                     UserId          = $_.account_info.user_id;
@@ -149,7 +151,7 @@ Class GaroonMail : GaroonClass {
 
     #メールアカウントを削除する
     [void]DeleteUserAccount([string]$AccountId, [bool]$DeleteAllEmail) {
-        $Action = "MailDeleteUserAccount"
+        $Action = 'MailDeleteUserAccount'
         $ParamBody = ('<parameters><delete_user_accounts xmlns="" account_id="{0}" delete_all_email="{1}"></delete_user_accounts></parameters>' -f $AccountId, $DeleteAllEmail.ToString().ToLower())
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return
@@ -158,8 +160,8 @@ Class GaroonMail : GaroonClass {
     #メールアカウントを取得する
     # API 実行ユーザー以外のユーザーのアカウントを取得することはできません。
     [Object[]]GetAccountsById([string[]]$AccountId) {
-        $Action = "MailGetAccountsById"
-        [string[]]$body = $AccountId | Foreach-Object { '<account_id xmlns="">{0}</account_id> ' -f $_ }
+        $Action = 'MailGetAccountsById'
+        [string[]]$body = $AccountId | ForEach-Object { '<account_id xmlns="">{0}</account_id> ' -f $_ }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.MailGetAccountsByIdResponse.returns.account

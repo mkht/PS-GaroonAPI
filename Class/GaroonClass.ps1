@@ -37,7 +37,7 @@ class GaroonClass {
     [System.Management.Automation.PSCredential] $Credential # ガルーンログインアカウント情報
     [ValidatePattern('^https?://(.+(grn|index)(\.exe|\.cgi|\.csp)\??|.+\.cybozu\.com/g/)$')]
     [string] $GrnURL    # ガルーンのURL
-    [ValidateSet(".exe", ".csp", ".cgi", "")]
+    [ValidateSet('.exe', '.csp', '.cgi', '')]
     [string] $Ext   # [未使用]拡張子
     [string] $ApiSuffix
     [string] $RequestURI    # 実際にリクエストするURL
@@ -49,7 +49,7 @@ class GaroonClass {
         $this.GrnURL = $URL
 
         # for Garoon on cybozu
-        if ($tURL = $([regex]::Match($URL, ".+cybozu.com/g"))[0].Value) {
+        if ($tURL = $([regex]::Match($URL, '.+cybozu.com/g'))[0].Value) {
             $this.RequestURI = $tURL + $this.ApiSuffix
         }
         # for Package version
@@ -62,7 +62,7 @@ class GaroonClass {
         $this.GrnURL = $URL
         $this.Credential = $Credential
         # for Garoon on cybozu
-        if ($tURL = $([regex]::Match($URL, ".+cybozu.com/g"))[0].Value) {
+        if ($tURL = $([regex]::Match($URL, '.+cybozu.com/g'))[0].Value) {
             $this.RequestURI = $tURL + $this.ApiSuffix
         }
         # for Package version
@@ -75,22 +75,22 @@ class GaroonClass {
         Write-Verbose "Sending SOAP Request To Server: $URL"
         $soapWebRequest = [System.Net.WebRequest]::Create($URL)
         $soapWebRequest.ContentType = 'text/xml;charset="utf-8"'
-        $soapWebRequest.Accept = "text/xml"
-        $soapWebRequest.Method = "POST"
+        $soapWebRequest.Accept = 'text/xml'
+        $soapWebRequest.Method = 'POST'
 
-        Write-Verbose "Initiating Send."
+        Write-Verbose 'Initiating Send.'
         $requestStream = $soapWebRequest.GetRequestStream()
         $SOAPRequest.Save($requestStream)
         $requestStream.Close()
 
-        Write-Verbose "Send Complete, Waiting For Response."
+        Write-Verbose 'Send Complete, Waiting For Response.'
         $resp = $soapWebRequest.GetResponse()
         $responseStream = $resp.GetResponseStream()
         $soapReader = [System.IO.StreamReader]($responseStream)
         $ReturnXml = [Xml] $soapReader.ReadToEnd()
         $responseStream.Close()
 
-        Write-Verbose "Response Received."
+        Write-Verbose 'Response Received.'
         return $ReturnXml
     }
 
@@ -129,7 +129,7 @@ class GaroonClass {
             throw $msg    # throwとWrite-Errorどっちがいいんだろう？
         }
         if ($Fault = $ResponseXml.Envelope.Body.Fault) {
-            $msg = ("[ERROR][{0}] {1}" -f $Fault.Detail.Code, $Fault.Reason.Text)
+            $msg = ('[ERROR][{0}] {1}' -f $Fault.Detail.Code, $Fault.Reason.Text)
             # Write-Warning $msg
             throw $msg
         }

@@ -3,11 +3,11 @@
 Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
-Describe "Tests of Remove-GrnOrganizationMember" {
+Describe 'Tests of Remove-GrnOrganizationMember' {
 
     BeforeAll {
         $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
-        $script:ValidCred = New-Object PsCredential "sato", (ConvertTo-SecureString "sato" -asplaintext -force)
+        $script:ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
         $script:OrgName = '役員'
         $script:CurrentMembers = ('yamada', 'sujino', 'mikami', 'nomura')
 
@@ -32,7 +32,7 @@ Describe "Tests of Remove-GrnOrganizationMember" {
         $OneUser = 'sujino'
 
         # 出力あり
-        {Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop -PassThru} | Should Not BeNullOrEmpty
+        { Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop -PassThru } | Should Not BeNullOrEmpty
     }
 
     It '組織からユーザ削除(1ユーザ)' {
@@ -81,7 +81,7 @@ Describe "Tests of Remove-GrnOrganizationMember" {
         $NoMember = 'sato'
 
         # エラー・警告とも発生しないこと
-        {$script:Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $NoMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop -wa Stop} | Should Not Throw
+        { $script:Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $NoMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop -wa Stop } | Should Not Throw
 
         # 組織内のメンバーに変化がないこと
         Compare-Object $CurrentMembers $Org1.Members -PassThru | Should BeNullOrEmpty
@@ -103,6 +103,6 @@ Describe "Tests of Remove-GrnOrganizationMember" {
         $ExpectMsg = ('組織 ({0}) が見つかりませんでした' -f $OrgName)
 
         # 実行時にエラー発生
-        {Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw $ExpectMsg
+        { Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw $ExpectMsg
     }
 }

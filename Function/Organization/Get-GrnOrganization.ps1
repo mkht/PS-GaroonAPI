@@ -66,8 +66,8 @@ function Get-GrnOrganization {
         [pscredential]$Credential,
 
         #検索モード（完全一致、ワイルドカード、正規表現）
-        [ValidateSet("Equal", "Like", "RegExp")]
-        [string]$SearchMode = "Equal",
+        [ValidateSet('Equal', 'Like', 'RegExp')]
+        [string]$SearchMode = 'Equal',
 
         #詳細情報を取得しない
         [switch]$NoDetail
@@ -79,7 +79,7 @@ function Get-GrnOrganization {
         try {
             $orgids = $admin.GetOrgIds()
             if ($orgids.Count -le 0) {
-                throw "ガルーンから組織情報が取得できませんでした"
+                throw 'ガルーンから組織情報が取得できませんでした'
             }
             else {
                 $orgs = $base.GetOrganizationsById($orgids)
@@ -91,15 +91,15 @@ function Get-GrnOrganization {
         }
 
         $private:ex = switch ($SearchMode) {
-            'Equal' {'eq'}
-            'Like' {'like'}
-            'RegExp' {'match'}
+            'Equal' { 'eq' }
+            'Like' { 'like' }
+            'RegExp' { 'match' }
         }
         Set-Variable -Name eval -Value ('$_.name -{0} $Org' -f $ex) -Option ReadOnly
     }
     Process {
         foreach ($Org in $OrganizationName) {
-            $private:s = $orgs.Where( {Invoke-Expression $eval})
+            $private:s = $orgs.Where( { Invoke-Expression $eval })
             if ($s.Count -ge 1) {
                 $s | ForEach-Object {
                     if ($_.key) {
@@ -109,15 +109,15 @@ function Get-GrnOrganization {
                         if ($_.organization) {
                             $ChildOrgs = $base.GetOrganizationsById($_.organization.key)
                         }
-                        else {$ChildOrgs = $null}
+                        else { $ChildOrgs = $null }
                         if ($_.parent_organization) {
                             $ParentOrg = $base.GetOrganizationsById($_.parent_organization)
                         }
-                        else {$ParentOrg = $null}
+                        else { $ParentOrg = $null }
                         if ($_.members.user.id) {
                             $Members = $base.GetUsersById($_.members.user.id)
                         }
-                        else {$Members = $null}
+                        else { $Members = $null }
                     }
                     [PSCustomObject]@{
                         OrganizationName   = [string]$_.name    #組織名

@@ -110,7 +110,7 @@ function Set-GrnOrganization {
         if ($PSBoundParameters.Members -is [Array]) {
             # 全メンバーを削除
             $RemoveUserIds = [int[]]($Org.Members | ForEach-Object {
-                    try {$private:user = $base.GetUsersByLoginName($_)}catch {}
+                    try { $private:user = $base.GetUsersByLoginName($_) }catch {}
                     if ($user.key) {
                         $user.key
                     }
@@ -122,7 +122,7 @@ function Set-GrnOrganization {
             #メンバー追加
             $AddUserIds = [int[]]($Members | ForEach-Object {
                     $private:name = $_
-                    try {$private:user = $base.GetUsersByLoginName($name)}catch {}
+                    try { $private:user = $base.GetUsersByLoginName($name) }catch {}
                     if ($user.key) {
                         $user.key
                     }

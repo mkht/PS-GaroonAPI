@@ -3,20 +3,20 @@
 Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
-Describe "Tests of Set-GrnOrganization" {
+Describe 'Tests of Set-GrnOrganization' {
     # 要注意： 本テストを実行するには事前にガルーンデモサイトで「事前設定の反映」を実施しておく必要あり
     $GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
-    $ValidCred = New-Object PsCredential "sato", (ConvertTo-SecureString "sato" -asplaintext -force)
+    $ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
 
     Context '組織名の変更' {
         $OrgName = '第1営業グループ'
         $New = 'XXX_第1営業グループ'
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = Set-GrnOrganization -Name $OrgName -NewName $New -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = Set-GrnOrganization -Name $OrgName -NewName $New -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
-        It "正しく組織名が変更されているか" {
+        It '正しく組織名が変更されているか' {
             $Org1.OrganizationName | Should Be $New
         }
 
@@ -30,11 +30,11 @@ Describe "Tests of Set-GrnOrganization" {
         $CurrentParent = 'さいど株式会社'
         $NewParent = '企画部'
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = Set-GrnOrganization -Name $OrgName -Parent $NewParent -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = Set-GrnOrganization -Name $OrgName -Parent $NewParent -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
-        It "正しく親組織が変わっているか" {
+        It '正しく親組織が変わっているか' {
             $Org1.ParentOrganization | Should Be $NewParent
         }
 
@@ -47,8 +47,8 @@ Describe "Tests of Set-GrnOrganization" {
         $OrgName = '役員'
         $Parent = 'さいど株式会社'
 
-        It "実行時にエラー発生しない" {
-            {Set-GrnOrganization -Name $OrgName -Parent $Parent -URL $GrnURL -Credential $ValidCred -ea Stop 6>$null} | Should Not Throw
+        It '実行時にエラー発生しない' {
+            { Set-GrnOrganization -Name $OrgName -Parent $Parent -URL $GrnURL -Credential $ValidCred -ea Stop 6>$null } | Should Not Throw
         }
     }
 
@@ -57,11 +57,11 @@ Describe "Tests of Set-GrnOrganization" {
         $NewMember = ('sakaguchi', 'higuma', 'brown', 'yamada')
         $CurrentMember = ('yamada', 'sato', 'John', 'ito', 'matsuda')
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = Set-GrnOrganization -Name $OrgName -Members $NewMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = Set-GrnOrganization -Name $OrgName -Members $NewMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
-        It "正しくメンバーが変わっているか" {
+        It '正しくメンバーが変わっているか' {
             @($Org1.Members.Count) | Should Be 4
             $Org1.Members -ccontains $NewMember[0] | Should Be $true
             $Org1.Members -ccontains $NewMember[1] | Should Be $true
@@ -79,11 +79,11 @@ Describe "Tests of Set-GrnOrganization" {
         $NewMember = @()
         $CurrentMember = ('John', 'kobayashi', 'furukawa', 'davis', 'li')
 
-        It "実行時にエラーが発生しないか" {
-            {$script:Org1 = Set-GrnOrganization -Name $OrgName -Members $NewMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop} | Should Not Throw
+        It '実行時にエラーが発生しないか' {
+            { $script:Org1 = Set-GrnOrganization -Name $OrgName -Members $NewMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop } | Should Not Throw
         }
 
-        It "正しくメンバーが消えているか" {
+        It '正しくメンバーが消えているか' {
             $Org1.Members | Should BeNullOrEmpty
         }
 
@@ -95,8 +95,8 @@ Describe "Tests of Set-GrnOrganization" {
     Context 'Error: 存在しない組織は変更できない' {
         $OrgName = 'NULL部'
 
-        It "実行時にエラー発生" {
-            {Set-GrnOrganization -Name $OrgName -Members @() -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw '見つかりませんでした'
+        It '実行時にエラー発生' {
+            { Set-GrnOrganization -Name $OrgName -Members @() -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw '見つかりませんでした'
         }
     }
 
@@ -104,8 +104,8 @@ Describe "Tests of Set-GrnOrganization" {
         $OrgName = '役員'
         $NewName = '社長'
 
-        It "実行時にエラー発生" {
-            {Set-GrnOrganization -Name $OrgName -NewName $NewName -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw '組織が既に存在する'
+        It '実行時にエラー発生' {
+            { Set-GrnOrganization -Name $OrgName -NewName $NewName -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw '組織が既に存在する'
         }
     }
 
@@ -113,8 +113,8 @@ Describe "Tests of Set-GrnOrganization" {
         $OrgName = '役員'
         $Parent = 'NULL部'
 
-        It "実行時にエラー発生" {
-            {Set-GrnOrganization -Name $OrgName -Parent $Parent -URL $GrnURL -Credential $ValidCred -ea Stop} | Should Throw '新しい親組織'
+        It '実行時にエラー発生' {
+            { Set-GrnOrganization -Name $OrgName -Parent $Parent -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw '新しい親組織'
         }
     }
 }

@@ -3,48 +3,48 @@
 Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
-Describe "Tests of New-GrnUser" {
+Describe 'Tests of New-GrnUser' {
     $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
-    $ValidCred = New-Object PsCredential "sato",(ConvertTo-SecureString "sato" -asplaintext -force)
+    $ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
 
     Context 'Error' {
 
         $script:DummyInfo = @{
-                LoginName = 'foo'
-                Password = 'pass'
-                DisplayName = 'bar'
-            }
+            LoginName   = 'foo'
+            Password    = 'pass'
+            DisplayName = 'bar'
+        }
 
-        It "If http 404 error, shoud throw WebException" {
+        It 'If http 404 error, shoud throw WebException' {
             $local:WrongURL = 'https://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
 
-            {New-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop} | Should throw '404'
+            { New-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop } | Should throw '404'
         }
 
-        It "If you use invalid credential, shoud throw [FW00007] error" {
-            $local:InvalidCred = New-Object PsCredential "hoge",(ConvertTo-SecureString "hoge" -asplaintext -force)
+        It 'If you use invalid credential, shoud throw [FW00007] error' {
+            $local:InvalidCred = New-Object PsCredential 'hoge', (ConvertTo-SecureString 'hoge' -AsPlainText -Force)
 
-            {New-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop} | Should throw '[FW00007]'
+            { New-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop } | Should throw '[FW00007]'
         }
 
-        It "If try to create duplicate user, shoud throw" {
+        It 'If try to create duplicate user, shoud throw' {
 
             $local:DuplicateUser = @{
-                LoginName = 'sato'
-                Password = 'sato'
+                LoginName   = 'sato'
+                Password    = 'sato'
                 DisplayName = '佐藤 昇'
             }
 
-            {New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop} | Should throw '既に存在します'
+            { New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should throw '既に存在します'
         }
 
-        It "If specified NON existing Organization name, shoud throw" {
+        It 'If specified NON existing Organization name, shoud throw' {
 
             $local:DuplicateUser = $DummyInfo
             $DuplicateUser.PrimaryOrganization = 'ほにゃららら'
             $DuplicateUser.Organization = '役員'
 
-            {New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop} | Should throw '存在しない組織名が含まれています'
+            { New-GrnUser @DuplicateUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should throw '存在しない組織名が含まれています'
         }
     }
 
@@ -55,33 +55,33 @@ Describe "Tests of New-GrnUser" {
             [string]($chars[$random] -join '')
         }
 
-        It "Create new user with orgs" {
+        It 'Create new user with orgs' {
             $script:UserInfo = @{
-                LoginName = & $Gen_Id
-                DisplayName = '手巣戸 太郎'
-                Password = 'P@ssw0rd'
-                Kana = 'てすと たろう'
+                LoginName           = & $Gen_Id
+                DisplayName         = '手巣戸 太郎'
+                Password            = 'P@ssw0rd'
+                Kana                = 'てすと たろう'
                 PrimaryOrganization = '役員'
-                Organization = "総務部","経理部"
+                Organization        = '総務部', '経理部'
             }
 
             $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
             $user.LoginName | Should BeExactly $UserInfo.LoginName
             $user.DisplayName | Should BeExactly $UserInfo.DisplayName
             $user.PrimaryOrganization | Should BeExactly $UserInfo.PrimaryOrganization
-            {$UserInfo.Organization -ccontains $user.PrimaryOrganization} | Should Be $true
+            { $UserInfo.Organization -ccontains $user.PrimaryOrganization } | Should Be $true
             $UserInfo.Organization.ForEach({
-                $user.Organization -ccontains $_
-            }) | Should Be $true
+                    $user.Organization -ccontains $_
+                }) | Should Be $true
         }
 
-        It "Create new user without orgs" {
+        It 'Create new user without orgs' {
             $script:UserInfo = @{
-                LoginName = & $Gen_Id
-                DisplayName = '手巣戸 花子'
-                Password = 'P@ssw0rd'
+                LoginName           = & $Gen_Id
+                DisplayName         = '手巣戸 花子'
+                Password            = 'P@ssw0rd'
                 PrimaryOrganization = ''
-                Organization = ''
+                Organization        = ''
             }
 
             $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
@@ -90,8 +90,8 @@ Describe "Tests of New-GrnUser" {
             $UserInfo.Organization | Should Be ''
         }
 
-        AfterEach{
-            if($UserInfo){
+        AfterEach {
+            if ($UserInfo) {
                 Set-GrnUser -LoginName $UserInfo.LoginName -Invalid $true -URL $GrnURL -Credential $ValidCred -ea Continue
             }
         }

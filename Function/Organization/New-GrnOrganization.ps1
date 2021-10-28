@@ -84,7 +84,7 @@ function New-GrnOrganization {
         # 組織コード重複の場合は実行時に[GRN_CMMN_00103]エラーが出るのでそれで。
 
         if (-not $OrganizationCode) {
-            $OrganizationCode = -join ((1..9) | % {Get-Random -input ([char[]]((48..57) + (65..90) + (97..122)))})  #Gen random 9 chars passwd that only has 0-9A-Za-z
+            $OrganizationCode = -join ((1..9) | % { Get-Random -input ([char[]]((48..57) + (65..90) + (97..122))) })  #Gen random 9 chars passwd that only has 0-9A-Za-z
             Write-Warning "組織コードが指定されていません。自動生成された組織コード($OrganizationCode)を使用します"
         }
 
@@ -92,11 +92,11 @@ function New-GrnOrganization {
         if ($ParentOrganization) {
             $Parent = Get-GrnOrganization -OrganizationName $ParentOrganization -NoDetail -URL $URL -Credential $Credential -ErrorAction Stop
             if (-not $Parent) {
-                Write-Error "親組織が見つかりません"
+                Write-Error '親組織が見つかりません'
                 return
             }
             elseif ($Parent.Count -ge 2) {
-                Write-Error "指定の親組織名と同名の組織が複数見つかりました。処理を中止します"
+                Write-Error '指定の親組織名と同名の組織が複数見つかりました。処理を中止します'
                 return
             }
         }
