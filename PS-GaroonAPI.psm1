@@ -3,7 +3,8 @@ $ClassList = @(
     'GaroonClass.ps1',
     'GaroonBase.ps1',
     'GaroonAdmin.ps1',
-    'GaroonMail.ps1'
+    'GaroonMail.ps1',
+    'GaroonAddress.ps1'
 )
 foreach ($class in $ClassList) {
     . $PSScriptRoot\Class\$class
