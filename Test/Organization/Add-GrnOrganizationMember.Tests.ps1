@@ -14,6 +14,8 @@ Describe 'Tests of Add-GrnOrganizationMember' {
             $OrgName = '役員'
             $User = 'tanaka'
             $CurrentMembers = ('yamada', 'sujino', 'mikami', 'nomura')
+            Set-GrnOrganization $OrgName -Members $CurrentMembers -URL $GrnURL -Credential $ValidCred -ea SilentlyContinue -wa SilentlyContinue
+            $script:Org1 = $null
         }
 
         It '実行時にエラーが発生しないか' {

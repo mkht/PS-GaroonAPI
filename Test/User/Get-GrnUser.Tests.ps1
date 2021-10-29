@@ -19,7 +19,7 @@ Describe 'Tests of Get-GrnUser' {
         }
 
         It '正しいユーザが取得できているか' {
-            $User1.DisplayName | Should -Be '野村　理佳'
+            $User1.DisplayName | Should -Be '野村 理佳'
             $User1.Kana | Should -Be 'のむら　りか'
             $User1.Email | Should -Be 'nomura@localhost'
             $User1.Position | Should -Be 10
