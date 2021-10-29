@@ -1,4 +1,4 @@
-﻿$moduleRoot = Split-Path $PSScriptRoot -Parent
+﻿$moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 
 Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
@@ -25,14 +25,14 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
         $OneUser = 'yamada'
 
         # 何も出力しない
-        Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop | Should BeNullOrEmpty
+        Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop | Should -BeNullOrEmpty
     }
 
     It 'PassThruスイッチ有りの場合はオブジェクト出力' {
         $OneUser = 'sujino'
 
         # 出力あり
-        { Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop -PassThru } | Should Not BeNullOrEmpty
+        { Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop -PassThru } | Should -Not -BeNullOrEmpty
     }
 
     It '組織からユーザ削除(1ユーザ)' {
@@ -42,10 +42,10 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
         $Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop
 
         # 対象ユーザが削除されているか
-        $User -in $Org1.Members | Should Be $false
+        $User -in $Org1.Members | Should -Be $false
 
         # メンバー数が減っているか
-        @($Org1.Members).Length | Should Be (@($CurrentMembers).Length - 1)
+        @($Org1.Members).Length | Should -Be (@($CurrentMembers).Length - 1)
     }
 
     It '組織からユーザ削除(複数ユーザ)' {
@@ -55,11 +55,11 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
         $Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $TwoUsers -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop
 
         # 対象ユーザが削除されているか
-        $TwoUsers[0] -in $Org1.Members | Should Be $false
-        $TwoUsers[1] -in $Org1.Members | Should Be $false
+        $TwoUsers[0] -in $Org1.Members | Should -Be $false
+        $TwoUsers[1] -in $Org1.Members | Should -Be $false
 
         # メンバー数が減っているか
-        @($Org1.Members).Length | Should Be (@($CurrentMembers).Length - 2)
+        @($Org1.Members).Length | Should -Be (@($CurrentMembers).Length - 2)
     }
 
     It '組織からユーザ削除(パイプライン)' {
@@ -69,11 +69,11 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
         $Org1 = $TwoUsers | Remove-GrnOrganizationMember -Name $OrgName -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop
 
         # 対象ユーザが削除されているか
-        $TwoUsers[0] -in $Org1.Members | Should Be $false
-        $TwoUsers[1] -in $Org1.Members | Should Be $false
+        $TwoUsers[0] -in $Org1.Members | Should -Be $false
+        $TwoUsers[1] -in $Org1.Members | Should -Be $false
 
         # メンバー数が減っているか
-        @($Org1.Members).Length | Should Be (@($CurrentMembers).Length - 2)
+        @($Org1.Members).Length | Should -Be (@($CurrentMembers).Length - 2)
 
     }
 
@@ -81,11 +81,11 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
         $NoMember = 'sato'
 
         # エラー・警告とも発生しないこと
-        { $script:Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $NoMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop -wa Stop } | Should Not Throw
+        { $script:Org1 = Remove-GrnOrganizationMember -Name $OrgName -Members $NoMember -URL $GrnURL -Credential $ValidCred -PassThru -ea Stop -wa Stop } | Should -Not -Throw
 
         # 組織内のメンバーに変化がないこと
-        Compare-Object $CurrentMembers $Org1.Members -PassThru | Should BeNullOrEmpty
-        @($Org1.Members).Length -eq @($CurrentMembers).Length | Should Be $true
+        Compare-Object $CurrentMembers $Org1.Members -PassThru | Should -BeNullOrEmpty
+        @($Org1.Members).Length -eq @($CurrentMembers).Length | Should -Be $true
     }
 
     It 'ガルーンに存在しないユーザを消そうとした場合は警告メッセージ' {
@@ -94,15 +94,15 @@ Describe 'Tests of Remove-GrnOrganizationMember' {
 
         # 警告が発生すること
         $WarnMsg = Remove-GrnOrganizationMember -Name $OrgName -Members $NullMember -URL $GrnURL -Credential $ValidCred -ea Stop 3>&1
-        $WarnMsg.Message | Should Be $ExpectMsg
+        $WarnMsg.Message | Should -Be $ExpectMsg
     }
 
     It 'Error: 存在しない組織を指定した場合は例外発生' {
-        $OrgName = 'NULL部'
+        $NullOrgName = 'NULL部'
         $OneUser = 'sato'
-        $ExpectMsg = ('組織 ({0}) が見つかりませんでした' -f $OrgName)
+        $ExpectMsg = ('*組織 ({0}) が見つかりませんでした*' -f $NullOrgName)
 
         # 実行時にエラー発生
-        { Remove-GrnOrganizationMember -Name $OrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should Throw $ExpectMsg
+        { Remove-GrnOrganizationMember -Name $NullOrgName -Members $OneUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should -Throw $ExpectMsg
     }
 }

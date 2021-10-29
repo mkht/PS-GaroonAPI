@@ -1,48 +1,48 @@
-﻿$moduleRoot = Split-Path $PSScriptRoot -Parent
+﻿$moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 
 Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
 
 Describe 'Tests of Set-GrnUser' {
-    $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
-    $ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
+    BeforeAll {
+        $script:GrnURL = 'https://onlinedemo2.cybozu.info/scripts/garoon/grn.exe'
+        $ValidCred = New-Object PsCredential 'sato', (ConvertTo-SecureString 'sato' -AsPlainText -Force)
+    }
 
     Context 'Error' {
-
-        $script:DummyInfo = @{
-            LoginName   = 'foo'
-            Password    = 'pass'
-            DisplayName = 'bar'
+        BeforeAll {
+            $script:DummyInfo = @{
+                LoginName   = 'foo'
+                Password    = 'pass'
+                DisplayName = 'bar'
+            }
         }
 
-        It 'If http 404 error, shoud throw WebException' {
+        It 'If http 404 error, Should -Throw WebException' {
             $local:WrongURL = 'https://onlinedemo2.cybozu.info/scripts/garooooooooooon/grn.exe'
-
-            { Set-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop } | Should throw '404'
+            { Set-GrnUser @DummyInfo -URL $WrongURL -Credential $ValidCred -ea Stop } | Should -Throw '*404*'
         }
 
-        It 'If you use invalid credential, shoud throw [FW00007] error' {
+        It 'If you use invalid credential, Should -Throw [FW00007] error' {
             $local:InvalidCred = New-Object PsCredential 'hoge', (ConvertTo-SecureString 'hoge' -AsPlainText -Force)
-
-            { Set-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop } | Should throw '[FW00007]'
+            { Set-GrnUser @DummyInfo -URL $GrnURL -Credential $InvalidCred -ea Stop } | Should -Throw '*[FW00007]*'
         }
 
-        It 'If specified NON existing user, shoud throw' {
+        It 'If specified NON existing user, Should -Throw' {
             $local:NonExistingUser = @{
                 LoginName = 'hogehoge'
             }
-            { Set-GrnUser @NonExistingUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should throw 'ユーザーが見つかりません'
+            { Set-GrnUser @NonExistingUser -URL $GrnURL -Credential $ValidCred -ea Stop } | Should -Throw '*[GRN_SYSAPI_64008]*'
         }
 
-        It 'If specified NON existing Organization name, shoud throw' {
-
+        It 'If specified NON existing Organization name, Should -Throw' {
             $local:NonExistingOrgs = @{
                 LoginName = 'nomura'
             }
             $NonExistingOrgs.PrimaryOrganization = 'ほにゃららら'
             $NonExistingOrgs.Organization = '役員'
 
-            { Set-GrnUser @NonExistingOrgs -URL $GrnURL -Credential $ValidCred -ea Stop } | Should throw '存在しない組織名が含まれています'
+            { Set-GrnUser @NonExistingOrgs -URL $GrnURL -Credential $ValidCred -ea Stop } | Should -Throw '*存在しない組織名が含まれています*'
         }
     }
 
@@ -74,9 +74,9 @@ Describe 'Tests of Set-GrnUser' {
                 DisplayName = 'Modify_X'; Phone = '080-XXX-XXXX'
             }
             $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
-            $user.LoginName | Should BeExactly $UserInfo.LoginName
-            $user.DisplayName | Should BeExactly $info.DisplayName
-            $user.Phone | Should BeExactly $info.Phone
+            $user.LoginName | Should -BeExactly $UserInfo.LoginName
+            $user.DisplayName | Should -BeExactly $info.DisplayName
+            $user.Phone | Should -BeExactly $info.Phone
         }
 
         It 'Modify user Orgs' {
@@ -84,12 +84,12 @@ Describe 'Tests of Set-GrnUser' {
                 PrimaryOrganization = '社長'; Organization = '社長', '企画部'
             }
             $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
-            $user.LoginName | Should BeExactly $UserInfo.LoginName
-            $user.PrimaryOrganization | Should BeExactly $info.PrimaryOrganization
-            { $info.Organization -ccontains $user.PrimaryOrganization } | Should Be $true
+            $user.LoginName | Should -BeExactly $UserInfo.LoginName
+            $user.PrimaryOrganization | Should -BeExactly $info.PrimaryOrganization
+            $user.Organization -ccontains $info.PrimaryOrganization | Should -Be $true
             $info.Organization.ForEach({
-                    $user.Organization -ccontains $_
-                }) | Should Be $true
+                    $user.Organization -ccontains $_  | Should -Be $true
+                })
         }
 
         It 'Clear user Orgs' {
@@ -97,8 +97,8 @@ Describe 'Tests of Set-GrnUser' {
                 Organization = ''
             }
             $private:user = Set-GrnUser -LoginName $UserInfo.LoginName @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue -WarningAction SilentlyContinue
-            $user.LoginName | Should BeExactly $UserInfo.LoginName
-            $info.Organization | Should Be ''
+            $user.LoginName | Should -BeExactly $UserInfo.LoginName
+            $info.Organization | Should -Be ''
         }
 
         It 'Pipeline from Get-GrnUser' {
@@ -109,13 +109,13 @@ Describe 'Tests of Set-GrnUser' {
             }
             $private:user = Get-GrnUser -LoginName $UserInfo.LoginName -URL $GrnURL -Credential $ValidCred |
             Set-GrnUser @info -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
-            $user.LoginName | Should BeExactly $UserInfo.LoginName
-            $user.Position | Should BeExactly $info.Position
-            $user.PrimaryOrganization | Should BeExactly $info.PrimaryOrganization
-            { $info.Organization -ccontains $user.PrimaryOrganization } | Should Be $true
+            $user.LoginName | Should -BeExactly $UserInfo.LoginName
+            $user.Position | Should -BeExactly $info.Position
+            $user.PrimaryOrganization | Should -BeExactly $info.PrimaryOrganization
+            $user.Organization -ccontains $info.PrimaryOrganization | Should -Be $true
             $info.Organization.ForEach({
-                    $user.Organization -ccontains $_
-                }) | Should Be $true
+                    $user.Organization -ccontains $_ | Should -Be $true
+                })
         }
 
     }
