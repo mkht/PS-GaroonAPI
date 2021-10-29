@@ -1,4 +1,4 @@
-﻿class CardInfo {
+class CardInfo {
     [string]$BookId = [NullString]::Value  # ブックID
     [string]$CardId = [NullString]::Value  # カードID
     [string]$Version = [NullString]::Value  # バージョン
@@ -93,6 +93,9 @@
         }
         if ($null -ne $this.Section) {
             $elem += ('<section>{0}</section>' -f $this.Section)
+        }
+        if ($null -ne $this.ZipCode) {
+            $elem += ('<zip_code>{0}</zip_code>' -f $this.ZipCode)
         }
         if ($null -ne $this.Address) {
             $elem += ('<physical_address>{0}</physical_address>' -f $this.Address)
