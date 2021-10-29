@@ -88,6 +88,7 @@
         'New-GrnMailAccount',
         'Get-GrnAddressBook',
         'Add-GrnAddressBookMember',
+        'Set-GrnAddressBookMember',
         'Invoke-SOAPRequest'
     )
 
