@@ -126,6 +126,7 @@ function Add-GrnAddressBookMember {
 
     Process {
         if ($null -eq $targetBook) {
+            Write-Error '指定されたアドレス帳が見つかりません'
             return
         }
 
