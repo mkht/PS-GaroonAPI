@@ -172,7 +172,7 @@ Class GaroonAddress : GaroonClass {
                     Name    = $_.name
                     Version = $_.version
                     Type    = $_.type
-                    CardId  = if ($_.cards.card.Count -ge 1) { $_.cards.card.id }
+                    CardId  = $(if ($null -ne $_.cards.card.id) { $_.cards.card.id })
                     Form    = [pscustomobject]$_.form
                 }
             )
@@ -180,6 +180,10 @@ Class GaroonAddress : GaroonClass {
     }
 
     #個人アドレス帳を取得する
+    [BookInfo[]]GetPersonalBooksById() {
+        return $this.GetPersonalBooksById(1)  #個人アドレス帳を複数持つケースがあるのか不明
+    }
+
     [BookInfo[]]GetPersonalBooksById([int[]]$BookId) {
         $Action = 'AddressGetPersonalBooksById'
         [string[]]$body = $BookId | ForEach-Object { '<book_id>{0}</book_id>' -f $_ }
@@ -193,7 +197,7 @@ Class GaroonAddress : GaroonClass {
                     Name    = $_.name
                     Version = $_.version
                     Type    = $_.type
-                    CardId  = if ($_.cards.card.Count -ge 1) { $_.cards.card.id }
+                    CardId  = $(if ($null -ne $_.cards.card.id) { $_.cards.card.id })
                     Form    = [pscustomobject]$_.form
                 }
             )
@@ -215,10 +219,10 @@ Class GaroonAddress : GaroonClass {
                     Creator        = [pscustomobject]$_.creator
                     Modifier       = [pscustomobject]$_.modifier
                     DisplayName    = $_.subject
-                    FamilyName     = if ($_.personal_name.part.count -ge 1) { $_.personal_name.part[0] }
-                    GivenName      = if ($_.personal_name.part.count -ge 2) { $_.personal_name.part[1] }
-                    FamilyNameKana = if ($_.personal_reading.part.count -ge 1) { $_.personal_reading.part[0] }
-                    GivenNameKana  = if ($_.personal_reading.part.count -ge 2) { $_.personal_reading.part[1] }
+                    FamilyName     = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[0] })
+                    GivenName      = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[1] })
+                    FamilyNameKana = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[0] })
+                    GivenNameKana  = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[1] })
                     CompanyName    = $_.company_name
                     CompanyReading = $_.company_reading
                     Section        = $_.section
@@ -252,10 +256,10 @@ Class GaroonAddress : GaroonClass {
                     Creator        = [pscustomobject]$_.creator
                     Modifier       = [pscustomobject]$_.modifier
                     DisplayName    = $_.subject
-                    FamilyName     = if ($_.personal_name.part.count -ge 1) { $_.personal_name.part.count[0] }
-                    GivenName      = if ($_.personal_name.part.count -ge 2) { $_.personal_name.part.count[1] }
-                    FamilyNameKana = if ($_.personal_reading.part.count -ge 1) { $_.personal_reading.part[0] }
-                    GivenNameKana  = if ($_.personal_reading.part.count -ge 2) { $_.personal_reading.part[1] }
+                    FamilyName     = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[0] })
+                    GivenName      = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[1] })
+                    FamilyNameKana = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[0] })
+                    GivenNameKana  = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[1] })
                     CompanyName    = $_.company_name
                     CompanyReading = $_.company_reading
                     Section        = $_.section
@@ -292,10 +296,10 @@ Class GaroonAddress : GaroonClass {
                     Creator        = [pscustomobject]$_.creator
                     Modifier       = [pscustomobject]$_.modifier
                     DisplayName    = $_.subject
-                    FamilyName     = if ($_.personal_name.part.count -ge 1) { $_.personal_name.part[0] }
-                    GivenName      = if ($_.personal_name.part.count -ge 2) { $_.personal_name.part[1] }
-                    FamilyNameKana = if ($_.personal_reading.part.count -ge 1) { $_.personal_reading.part[0] }
-                    GivenNameKana  = if ($_.personal_reading.part.count -ge 2) { $_.personal_reading.part[1] }
+                    FamilyName     = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[0] })
+                    GivenName      = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[1] })
+                    FamilyNameKana = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[0] })
+                    GivenNameKana  = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[1] })
                     CompanyName    = $_.company_name
                     CompanyReading = $_.company_reading
                     Section        = $_.section
@@ -333,10 +337,10 @@ Class GaroonAddress : GaroonClass {
                     Creator        = [pscustomobject]$_.creator
                     Modifier       = [pscustomobject]$_.modifier
                     DisplayName    = $_.subject
-                    FamilyName     = if ($_.personal_name.part.count -ge 1) { $_.personal_name.part[0] }
-                    GivenName      = if ($_.personal_name.part.count -ge 2) { $_.personal_name.part[1] }
-                    FamilyNameKana = if ($_.personal_reading.part.count -ge 1) { $_.personal_reading.part[0] }
-                    GivenNameKana  = if ($_.personal_reading.part.count -ge 2) { $_.personal_reading.part[1] }
+                    FamilyName     = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[0] })
+                    GivenName      = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[1] })
+                    FamilyNameKana = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[0] })
+                    GivenNameKana  = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[1] })
                     CompanyName    = $_.company_name
                     CompanyReading = $_.company_reading
                     Section        = $_.section
@@ -384,10 +388,10 @@ Class GaroonAddress : GaroonClass {
                     Creator        = [pscustomobject]$_.creator
                     Modifier       = [pscustomobject]$_.modifier
                     DisplayName    = $_.subject
-                    FamilyName     = if ($_.personal_name.part.count -ge 1) { $_.personal_name.part[0] }
-                    GivenName      = if ($_.personal_name.part.count -ge 2) { $_.personal_name.part[1] }
-                    FamilyNameKana = if ($_.personal_reading.part.count -ge 1) { $_.personal_reading.part[0] }
-                    GivenNameKana  = if ($_.personal_reading.part.count -ge 2) { $_.personal_reading.part[1] }
+                    FamilyName     = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[0] })
+                    GivenName      = $(if ($_.personal_name.part -is [array]) { $_.personal_name.part[1] })
+                    FamilyNameKana = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[0] })
+                    GivenNameKana  = $(if ($_.personal_reading.part -is [array]) { $_.personal_reading.part[1] })
                     CompanyName    = $_.company_name
                     CompanyReading = $_.company_reading
                     Section        = $_.section
