@@ -89,6 +89,7 @@
         'Get-GrnAddressBook',
         'Add-GrnAddressBookMember',
         'Set-GrnAddressBookMember',
+        'Remove-GrnAddressBookMember',
         'Invoke-SOAPRequest'
     )
 
