@@ -3,6 +3,7 @@
    ガルーンのアドレス帳を取得します
 .DESCRIPTION
    ブック名もしくはブックIDをキーにガルーンのアドレス帳を取得します。
+   ブック名に何も指定しない場合、閲覧可能なすべてのアドレス帳を取得します。
 .EXAMPLE
     Get-GrnAddressBook -Name '営業本部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
 
@@ -21,12 +22,14 @@ function Get-GrnAddressBook {
     (
         # アドレス帳の名前
         [Parameter(ParameterSetName = 'name', ValueFromPipeline = $true, Position = 0)]
-        [string[]]$Name,
+        [Alias('Name')]
+        [string[]]$BookName,
 
         # アドレス帳ID
         [Parameter(ParameterSetName = 'id')]
+        [Alias('Id')]
         [ValidateNotNullOrEmpty()]
-        [int[]]$Id,
+        [int[]]$BookId,
 
         # ガルーンのURL
         [Parameter(Mandatory = $true)]
@@ -39,7 +42,7 @@ function Get-GrnAddressBook {
         # アドレス帳に登録されているアドレスの詳細情報も取得する
         # Falseの場合アドレスID(CardId)のみ取得し、詳細は取得しない
         [Parameter()]
-        [bool]$GetMemberAddressInBook = $true
+        [bool]$GetMemberInAddressBook = $true
     )
 
     Begin {
@@ -47,13 +50,13 @@ function Get-GrnAddressBook {
         $address = New-Object GaroonAddress @($URL, $Credential) -ErrorAction Stop
         try {
             if ($PSCmdlet.ParameterSetName -eq 'name') {
-                [int[]]$Id = [int[]]::new(0)
-                $Id = $address.GetReadAllowBooks()
-                $Id += -1    #個人アドレス帳のID(-1)を追加
+                [int[]]$BookId = [int[]]::new(0)
+                $BookId = $address.GetReadAllowBooks()
+                $BookId += -1    #個人アドレス帳のID(-1)を追加
             }
 
             # $targetBookIds = [System.Collections.Generic.HashSet[int]]::new([int[]]$Id)
-            $targetBookIds = $Id
+            $targetBookIds = $BookId
             foreach ($BookId in $targetBookIds) {
                 if ($BookId -le 0) {
                     $targetBooks += $address.GetPersonalBooksById()
@@ -71,11 +74,11 @@ function Get-GrnAddressBook {
     Process {
         $returnBooks = [System.Collections.ArrayList]::new()
         if ($PSCmdlet.ParameterSetName -eq 'name') {
-            if ($Name.Count -eq 0) {
+            if ($BookName.Count -eq 0) {
                 $returnBooks = $targetBooks
             }
             else {
-                $returnBooks = ($targetBooks.Where({ $_.Name -in $Name }))
+                $returnBooks = ($targetBooks.Where({ $_.Name -in $BookName }))
             }
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'id') {
@@ -98,7 +101,7 @@ function Get-GrnAddressBook {
                     Member  = @()
                 }
 
-                if ($GetMemberAddressInBook -and $book.CardId.Count -ge 1) {
+                if ($GetMemberInAddressBook -and $book.CardId.Count -ge 1) {
                     if ($book.BookId -le 0) {
                         $members = $address.GetPersonalCardsById($book.CardId)
                     }
