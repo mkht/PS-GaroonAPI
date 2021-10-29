@@ -36,71 +36,71 @@ function Add-GrnAddressBookMember {
 
         # アドレス個人名（姓）
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$FamilyName,
+        [string]$FamilyName = [NullString]::Value,
 
         # アドレス個人名（名）
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$GivenName,
+        [string]$GivenName = [NullString]::Value,
 
         # アドレス個人名（よみ）（姓）
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$FamilyNameKana,
+        [string]$FamilyNameKana = [NullString]::Value,
 
         # アドレス個人名（よみ）（名）
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$GivenNameKana,
+        [string]$GivenNameKana = [NullString]::Value,
 
         # アドレス会社名
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$CompanyName,
+        [string]$CompanyName = [NullString]::Value,
 
         # アドレス会社名（よみ）
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$CompanyReading,
+        [string]$CompanyReading = [NullString]::Value,
 
         # アドレス部課名
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Section,
+        [string]$Section = [NullString]::Value,
 
         # アドレス郵便番号
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$ZipCode,
+        [string]$ZipCode = [NullString]::Value,
 
         # アドレス住所
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Address,
+        [string]$Address = [NullString]::Value,
 
         # アドレス地図
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [uri]$Map,
+        [uri]$Map = $null,
 
         # アドレス会社電話番号
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$CompanyPhone,
+        [string]$CompanyPhone = [NullString]::Value,
 
         # アドレス会社FAX番号
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$CompanyFax,
+        [string]$CompanyFax = [NullString]::Value,
 
         # アドレスURL
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [uri]$Link,
+        [uri]$Link = $null,
 
         # アドレス役職名
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Post,
+        [string]$Post = [NullString]::Value,
 
         # アドレス個人電話番号
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Phone,
+        [string]$Phone = [NullString]::Value,
 
         # アドレスE-mail
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Email,
+        [string]$Email = [NullString]::Value,
 
         # アドレスメモ
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [string]$Description,
+        [string]$Description = [NullString]::Value,
 
         # ガルーンのURL
         [Parameter(Mandatory = $true)]
