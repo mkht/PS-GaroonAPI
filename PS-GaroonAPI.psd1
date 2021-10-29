@@ -86,6 +86,8 @@
         'Add-GrnOrganizationMember',
         'Remove-GrnOrganizationMember',
         'New-GrnMailAccount',
+        'Get-GrnAddressBook',
+        'Add-GrnAddressBookMember',
         'Invoke-SOAPRequest'
     )
 
