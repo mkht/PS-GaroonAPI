@@ -65,7 +65,7 @@ function Remove-GrnAddressBookMember {
                 $class.RemoveSharedCards($CardId, $targetBook.BookId)
             }
             else {
-                ('指定されたアドレス帳に CardId={0} のアドレスが存在しません' -f $CardId)
+                Write-Warning ('指定されたアドレス帳に CardId={0} のアドレスが存在しません' -f $CardId)
             }
         }
         catch {
