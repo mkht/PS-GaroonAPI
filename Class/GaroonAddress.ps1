@@ -151,7 +151,7 @@ class BookInfo {
 
 
 # アドレス帳API群実行用クラス
-# https://cybozudev.zendesk.com/hc/ja/sections/200483090-%E3%83%A1%E3%83%BC%E3%83%AB
+# https://developer.cybozu.io/hc/ja/articles/202251654
 Class GaroonAddress : GaroonClass {
     [string] $ApiSuffix = '/cbpapi/address/api'
     GaroonAddress() : base() {}
