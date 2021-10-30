@@ -12,7 +12,7 @@
     RootModule        = 'PS-GaroonAPI.psm1'
 
     # このモジュールのバージョン番号です。
-    ModuleVersion     = '0.2.0'
+    ModuleVersion     = '0.3.0'
 
     # サポートされている PSEditions
     # CompatiblePSEditions = @()
@@ -61,7 +61,7 @@
         'Class\GaroonClass.ps1',
         'Class\GaroonBase.ps1',
         'Class\GaroonAdmin.ps1',
-        'Class\GaroonMail.ps1'
+        'Class\GaroonMail.ps1',
         'Class\GaroonAddress.ps1'
     )
 
