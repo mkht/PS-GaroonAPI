@@ -1,21 +1,81 @@
 ﻿<#
-.Synopsis
-   ガルーンのアドレス帳を取得します
+.SYNOPSIS
+    ガルーンのアドレス帳に登録されたアドレスを編集します
 .DESCRIPTION
-   ブック名もしくはブックIDをキーにガルーンのアドレス帳を取得します。
-   ブック名に何も指定しない場合、閲覧可能なすべてのアドレス帳を取得します。
+    ガルーンのアドレス帳に登録されたアドレスを編集します
+.PARAMETER BookName
+    編集したいアドレスが含まれるアドレス帳の名前を指定します
+    BookIdパラメータと同時に使用することはできません
+    注意：未指定のパラメータの情報は全て削除されます
+    既存のアドレス情報を維持したまま一部の情報のみ変更する場合はEXAMPLEを参考にしてください
+.PARAMETER BookId
+    編集したいアドレスが含まれるアドレス帳のIDを指定します
+    BookNameパラメータと同時に使用することはできません
+    「個人アドレス帳」を指定する場合は、BookIdに「-1」を指定してください
+.PARAMETER CardId
+    編集対象のアドレスIDを指定します
+.PARAMETER DisplayName
+    編集するアドレスの表示名
+.PARAMETER FamilyName
+    編集するアドレスの姓
+.PARAMETER GivenName
+    編集するアドレスの名
+.PARAMETER FamilyNameKana
+    編集するアドレスの姓（よみ）
+.PARAMETER GivenNameKana
+    編集するアドレスの名（よみ）
+.PARAMETER CompanyName
+    編集するアドレスの会社名
+.PARAMETER CompanyReading
+    編集するアドレスの会社名（よみ）
+.PARAMETER Section
+    編集するアドレスの部署名
+.PARAMETER ZipCode
+    編集するアドレスの郵便番号
+.PARAMETER Address
+    編集するアドレスの住所
+.PARAMETER Map
+    編集するアドレスの地図URL
+.PARAMETER CompanyPhone
+    編集するアドレスの会社電話番号
+.PARAMETER CompanyFax
+    編集するアドレスの会社FAX番号
+.PARAMETER Link
+    編集するアドレスのURL
+.PARAMETER Post
+    編集するアドレスの役職名
+.PARAMETER Phone
+    編集するアドレスの個人電話番号
+.PARAMETER Email
+    編集するアドレスのメールアドレス
+.PARAMETER Description
+    編集するアドレスのメモ
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
+.PARAMETER Force
+    変更対象のアドレスが存在しない場合は新規に登録します
+.PARAMETER PassThru
+    デフォルトではこの関数は処理後に何も出力しません
+    -PassThruを使用すると変更されたアドレス情報を出力します
 .EXAMPLE
-    Set-GrnAddressBookMember -BookName '営業本部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
-
-    BookId  : 3
-    Key     : Sales Headquarters
-    Name    : 営業本部
-    Version : 1191475956
-    Type    : cyde
-    CardId  : {3, 6, 7, 4}
-    Member  : {加藤 美咲, 鈴木 卓也, 音無 結城, 高橋 健太}
+    Set-GrnAddressBookMember -BookName '営業本部' -CardId 3 -DisplayName '吉田翔平' -Email 'yoshida@example.com' -URL $URL -Credential $Credential -PassThru
+    Example1:
+      「営業本部」アドレス帳に含まれるアドレスID=3のアドレスを「吉田翔平」に変更します
+      表示名とメールアドレス以外の既存情報はすべてクリアされます
+.EXAMPLE
+    $Member = Get-GrnAddressBook -BookName '営業本部' -URL $URL -Credential $Cred | Select-Object -ExpandProperty Member
+    $Takahashi = $Member | ? {$_.FamilyName -eq '高橋'}
+    $Takahashi.Email = 'newaddress@example.com'
+    $Takahashi | Set-GrnAddressBookMember -BookName '営業本部' -URL $URL -Credential $Cred
+    Example2:
+      「営業本部」アドレス帳に含まれる姓が「高橋」のメールアドレスを「newaddress@example.com」に変更します
+      メールアドレス以外の既存情報は変更されません
+    )
 #>
-
 function Set-GrnAddressBookMember {
     [CmdletBinding(DefaultParameterSetName = 'name')]
     Param
@@ -29,7 +89,7 @@ function Set-GrnAddressBookMember {
         [ValidateNotNullOrEmpty()]
         [int]$BookId,
 
-        # アドレス帳ID
+        # アドレスID
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [int]$CardId,

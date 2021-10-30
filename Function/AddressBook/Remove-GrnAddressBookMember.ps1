@@ -1,21 +1,32 @@
-﻿<#
-.Synopsis
-   ガルーンのアドレス帳を取得します
+﻿
+<#
+.SYNOPSIS
+    ガルーンのアドレス帳からアドレスを削除します
 .DESCRIPTION
-   ブック名もしくはブックIDをキーにガルーンのアドレス帳を取得します。
-   ブック名に何も指定しない場合、閲覧可能なすべてのアドレス帳を取得します。
+    ガルーンのアドレス帳からアドレスを削除します
+.PARAMETER BookName
+    削除対象のアドレス帳の名前を指定します
+    BookIdパラメータと同時に使用することはできません
+.PARAMETER BookId
+    削除対象のアドレス帳のIDを指定します
+    BookNameパラメータと同時に使用することはできません
+    「個人アドレス帳」に追加する場合は、BookIdに「-1」を指定してください
+.PARAMETER CardId
+    削除するアドレスのIDを指定します
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
 .EXAMPLE
-    Remove-GrnAddressBookMember -BookName '営業本部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
-
-    BookId  : 3
-    Key     : Sales Headquarters
-    Name    : 営業本部
-    Version : 1191475956
-    Type    : cyde
-    CardId  : {3, 6, 7, 4}
-    Member  : {加藤 美咲, 鈴木 卓也, 音無 結城, 高橋 健太}
+    Remove-GrnAddressBookMember -BookName '営業本部' -CardId 2 -URL $URL -Credential $Cred
+    Example1: 「営業本部」アドレス帳からID=2のアドレスを削除します
+.EXAMPLE
+    $Member = Get-GrnAddressBook -BookName '営業本部' -URL $URL -Credential $Cred | Select-Object -ExpandProperty Member
+    $Member | ? {$_.DisplayName -eq '鈴木 卓也'} | Remove-GrnAddressBookMember -URL $URL -Credential $Cred
+    Example2: 「営業本部」アドレス帳から表示名が「鈴木 卓也」のアドレスを削除します
 #>
-
 function Remove-GrnAddressBookMember {
     [CmdletBinding(DefaultParameterSetName = 'id')]
     Param
@@ -29,7 +40,7 @@ function Remove-GrnAddressBookMember {
         [ValidateNotNullOrEmpty()]
         [int]$BookId,
 
-        # アドレス帳ID
+        # アドレスID
         [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
         [ValidateNotNullOrEmpty()]
         [int]$CardId,

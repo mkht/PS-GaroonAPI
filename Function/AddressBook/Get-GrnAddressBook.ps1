@@ -1,9 +1,26 @@
 ﻿<#
-.Synopsis
-   ガルーンのアドレス帳を取得します
+.SYNOPSIS
+    ガルーンのアドレス帳を取得します
 .DESCRIPTION
-   ブック名もしくはブックIDをキーにガルーンのアドレス帳を取得します。
-   ブック名に何も指定しない場合、閲覧可能なすべてのアドレス帳を取得します。
+    ブック名もしくはブックIDをキーにガルーンのアドレス帳を取得します。
+    ブック名に何も指定しない場合、閲覧可能なすべてのアドレス帳を取得します。
+.PARAMETER BookName
+    アドレス帳の名前を指定します
+    BookIdパラメータと同時に使用することはできません
+.PARAMETER BookId
+    アドレス帳のIDを指定します
+    BookNameパラメータと同時に使用することはできません
+    「個人アドレス帳」に追加する場合は、BookIdに「-1」を指定してください
+.PARAMETER URL
+    ガルーンのURL
+    必ずトップページのURLを指定してください
+    例: http://grnserver/cgi-bin/cgi/grn.cgi
+.PARAMETER Credential
+    ガルーンに接続するための資格情報
+.PARAMETER GetMemberInAddressBook
+    アドレス帳に登録されているアドレスの詳細情報を取得するかどうか
+    $falseを指定した場合、登録アドレスのID（CardId）のみ取得します
+    $trueを指定した場合、登録アドレスの詳細情報をすべて取得します
 .EXAMPLE
     Get-GrnAddressBook -Name '営業本部' -URL 'http://grnserver/grn.cgi' -Credential (Get-Credential)
 
@@ -15,7 +32,6 @@
     CardId  : {3, 6, 7, 4}
     Member  : {加藤 美咲, 鈴木 卓也, 音無 結城, 高橋 健太}
 #>
-
 function Get-GrnAddressBook {
     [CmdletBinding(DefaultParameterSetName = 'name')]
     Param
