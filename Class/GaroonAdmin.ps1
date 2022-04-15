@@ -220,8 +220,8 @@ Class GaroonAdmin : GaroonClass {
 
         $body = @(
             ('<login_name xmlns="">{0}</login_name>' -f [SecurityElement]::Escape($LoginName)),
-            ('<display_name xmlns="">{0}</display_name>' -f [SecurityElement]::Escape($LoginName)),
-            ('<password_raw xmlns="">{0}</password_raw>' -f [SecurityElement]::Escape($LoginName))
+            ('<display_name xmlns="">{0}</display_name>' -f [SecurityElement]::Escape($DisplayName)),
+            ('<password_raw xmlns="">{0}</password_raw>' -f [SecurityElement]::Escape($Password))
         )
         if ($_UserInfo) {
             $body += $_UserInfo
