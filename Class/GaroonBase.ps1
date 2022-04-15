@@ -1,4 +1,7 @@
-﻿# ベースAPI群実行用クラス
+﻿using namespace System.Xml
+using namespace System.Security
+
+# ベースAPI群実行用クラス
 # https://cybozudev.zendesk.com/hc/ja/sections/200483120-%E3%83%99%E3%83%BC%E3%82%B9
 Class GaroonBase : GaroonClass {
     [string] $ApiSuffix = '/cbpapi/base/api'
@@ -27,7 +30,7 @@ Class GaroonBase : GaroonClass {
     #ログイン名からユーザーを取得する
     [Object[]]GetUsersByLoginName([string[]]$LoginName) {
         $Action = 'BaseGetUsersByLoginName'
-        [string[]]$body = $LoginName | ForEach-Object { '<login_name>{0}</login_name>' -f $_ }
+        [string[]]$body = $LoginName | ForEach-Object { '<login_name>{0}</login_name>' -f [SecurityElement]::Escape($_) }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.BaseGetUsersByLoginNameResponse.returns.user

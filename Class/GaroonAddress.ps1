@@ -1,3 +1,6 @@
+using namespace System.Xml
+using namespace System.Security
+
 class CardInfo {
     [string]$BookId = [NullString]::Value  # ブックID
     [string]$CardId = [NullString]::Value  # カードID
@@ -68,61 +71,61 @@ class CardInfo {
         $attr = @()
         $elem = @()
         if ($null -ne $this.BookId) {
-            $attr += ('book_id="{0}"' -f [string]$this.BookId)
+            $attr += ('book_id="{0}"' -f [SecurityElement]::Escape($this.BookId))
         }
         if ($null -ne $this.CardId) {
-            $attr += ('id="{0}"' -f [string]$this.CardId)
+            $attr += ('id="{0}"' -f [SecurityElement]::Escape($this.CardId))
         }
         if ($null -ne $this.Version) {
-            $attr += ('version="{0}"' -f [string]$this.Version)
+            $attr += ('version="{0}"' -f [SecurityElement]::Escape($this.Version))
         }
         if ($null -ne $this.DisplayName) {
-            $elem += ('<subject>{0}</subject>' -f $this.DisplayName)
+            $elem += ('<subject>{0}</subject>' -f [SecurityElement]::Escape($this.DisplayName))
         }
         if ($null -ne $this.FamilyName) {
-            $elem += ('<personal_name><part>{0}</part><part>{1}</part></personal_name>' -f $this.FamilyName, $this.GivenName)
+            $elem += ('<personal_name><part>{0}</part><part>{1}</part></personal_name>' -f [SecurityElement]::Escape($this.FamilyName), [SecurityElement]::Escape($this.GivenName))
         }
         if ($null -ne $this.FamilyNameKana) {
-            $elem += ('<personal_reading><part>{0}</part><part>{1}</part></personal_reading>' -f $this.FamilyNameKana, $this.GivenNameKana)
+            $elem += ('<personal_reading><part>{0}</part><part>{1}</part></personal_reading>' -f [SecurityElement]::Escape($this.FamilyNameKana), [SecurityElement]::Escape($this.GivenNameKana))
         }
         if ($null -ne $this.CompanyName) {
-            $elem += ('<company_name>{0}</company_name>' -f $this.CompanyName)
+            $elem += ('<company_name>{0}</company_name>' -f [SecurityElement]::Escape($this.CompanyName))
         }
         if ($null -ne $this.CompanyReading) {
-            $elem += ('<company_reading>{0}</company_reading>' -f $this.CompanyReading)
+            $elem += ('<company_reading>{0}</company_reading>' -f [SecurityElement]::Escape($this.CompanyReading))
         }
         if ($null -ne $this.Section) {
-            $elem += ('<section>{0}</section>' -f $this.Section)
+            $elem += ('<section>{0}</section>' -f [SecurityElement]::Escape($this.Section))
         }
         if ($null -ne $this.ZipCode) {
-            $elem += ('<zip_code>{0}</zip_code>' -f $this.ZipCode)
+            $elem += ('<zip_code>{0}</zip_code>' -f [SecurityElement]::Escape($this.ZipCode))
         }
         if ($null -ne $this.Address) {
-            $elem += ('<physical_address>{0}</physical_address>' -f $this.Address)
+            $elem += ('<physical_address>{0}</physical_address>' -f [SecurityElement]::Escape($this.Address))
         }
         if ($null -ne $this.Map) {
-            $elem += ('<map>{0}</map>' -f $this.Map.OriginalString)
+            $elem += ('<map>{0}</map>' -f [SecurityElement]::Escape($this.Map.OriginalString))
         }
         if ($null -ne $this.CompanyPhone) {
-            $elem += ('<company_tel>{0}</company_tel>' -f $this.CompanyPhone)
+            $elem += ('<company_tel>{0}</company_tel>' -f [SecurityElement]::Escape($this.CompanyPhone))
         }
         if ($null -ne $this.CompanyFax) {
-            $elem += ('<company_fax>{0}</company_fax>' -f $this.CompanyFax)
+            $elem += ('<company_fax>{0}</company_fax>' -f [SecurityElement]::Escape($this.CompanyFax))
         }
         if ($null -ne $this.URL) {
-            $elem += ('<url>{0}</url>' -f $this.URL.OriginalString)
+            $elem += ('<url>{0}</url>' -f [SecurityElement]::Escape($this.URL.OriginalString))
         }
         if ($null -ne $this.Post) {
-            $elem += ('<post>{0}</post>' -f $this.Post)
+            $elem += ('<post>{0}</post>' -f [SecurityElement]::Escape($this.Post))
         }
         if ($null -ne $this.Phone) {
-            $elem += ('<personal_tel>{0}</personal_tel>' -f $this.Phone)
+            $elem += ('<personal_tel>{0}</personal_tel>' -f [SecurityElement]::Escape($this.Phone))
         }
         if ($null -ne $this.Email) {
-            $elem += ('<email>{0}</email>' -f $this.Email)
+            $elem += ('<email>{0}</email>' -f [SecurityElement]::Escape($this.Email))
         }
         if ($null -ne $this.Description) {
-            $elem += ('<description>{0}</description>' -f $this.Description)
+            $elem += ('<description>{0}</description>' -f [SecurityElement]::Escape($this.Description))
         }
 
         return [string]('<card {0}>{1}</card>' -f ($attr -join ' '), ($elem -join ''))
@@ -288,7 +291,7 @@ Class GaroonAddress : GaroonClass {
 
     [CardInfo[]]SearchCards([string]$SearchText, [int]$BookId, [bool]$IgnoreCase) {
         $Action = 'AddressSearchCards'
-        $ParamBody = ('<parameters book_id="{0}" case_sensitive="{1}" text="{2}"></parameters>' -f $BookId, (-not $IgnoreCase).ToString().ToLower(), $SearchText)
+        $ParamBody = ('<parameters book_id="{0}" case_sensitive="{1}" text="{2}"></parameters>' -f $BookId, (-not $IgnoreCase).ToString().ToLower(), [SecurityElement]::Escape($SearchText))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.AddressSearchCardsResponse.returns.card |`
             Where-Object { $null -ne $_ } |`

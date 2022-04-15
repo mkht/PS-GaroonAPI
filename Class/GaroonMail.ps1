@@ -1,4 +1,7 @@
-﻿class MailAccountInfo {
+﻿using namespace System.Xml
+using namespace System.Security
+
+class MailAccountInfo {
     [string]$AccountId   # アカウントID
     [string]$UserId  # ユーザーID
     [string]$UserAccountCode    # アカウントコード
@@ -16,11 +19,11 @@
 
     [string]GetAccountInfoString() {
         $attr = @()
-        $attr += ('account_id="{0}"' -f [string]$this.AccountId)
-        $attr += ('user_id="{0}"' -f $this.UserId)
-        $attr += ('user_acount_code="{0}"' -f $this.UserAccountCode)  # スペルミスはGaroonAPIの仕様
+        $attr += ('account_id="{0}"' -f [SecurityElement]::Escape($this.AccountId))
+        $attr += ('user_id="{0}"' -f [SecurityElement]::Escape($this.UserId))
+        $attr += ('user_acount_code="{0}"' -f [SecurityElement]::Escape($this.UserAccountCode))  # スペルミスはGaroonAPIの仕様
         if ($this.UserAccountName) {
-            $attr += ('user_account_name="{0}"' -f $this.UserAccountName)
+            $attr += ('user_account_name="{0}"' -f [SecurityElement]::Escape($this.UserAccountName))
         }
         return [string]('<account_info {0}></account_info>' -f ($attr -join ' '))
     }
@@ -52,10 +55,10 @@ class MailSetting {
 
     [string]GetMailSettingString() {
         $attr = @()
-        $attr += ('mail_server_id="{0}"' -f [string]$this.MailServerId)
-        $attr += ('email="{0}"' -f $this.Email)
-        $attr += ('acount_name="{0}"' -f $this.AccountName)  # スペルミスはGaroonAPIの仕様
-        if ($this.Password) { $attr += ('password="{0}"' -f $this.Password) }
+        $attr += ('mail_server_id="{0}"' -f [SecurityElement]::Escape($this.MailServerId))
+        $attr += ('email="{0}"' -f [SecurityElement]::Escape($this.Email))
+        $attr += ('acount_name="{0}"' -f [SecurityElement]::Escape($this.AccountName))  # スペルミスはGaroonAPIの仕様
+        if ($this.Password) { $attr += ('password="{0}"' -f [SecurityElement]::Escape($this.Password)) }
         $attr += ('leave_server_mail="{0}"' -f $this.LeaveServerMail.ToString().ToLower())
         $attr += ('deactivate_user_account="{0}"' -f $this.Deactivate.ToString().ToLower())
         return [string]('<mail_setting {0}></mail_setting>' -f ($attr -join ' '))
@@ -152,7 +155,7 @@ Class GaroonMail : GaroonClass {
     #メールアカウントを削除する
     [void]DeleteUserAccount([string]$AccountId, [bool]$DeleteAllEmail) {
         $Action = 'MailDeleteUserAccount'
-        $ParamBody = ('<parameters><delete_user_accounts xmlns="" account_id="{0}" delete_all_email="{1}"></delete_user_accounts></parameters>' -f $AccountId, $DeleteAllEmail.ToString().ToLower())
+        $ParamBody = ('<parameters><delete_user_accounts xmlns="" account_id="{0}" delete_all_email="{1}"></delete_user_accounts></parameters>' -f [SecurityElement]::Escape($AccountId), $DeleteAllEmail.ToString().ToLower())
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return
     }
@@ -161,7 +164,7 @@ Class GaroonMail : GaroonClass {
     # API 実行ユーザー以外のユーザーのアカウントを取得することはできません。
     [Object[]]GetAccountsById([string[]]$AccountId) {
         $Action = 'MailGetAccountsById'
-        [string[]]$body = $AccountId | ForEach-Object { '<account_id xmlns="">{0}</account_id> ' -f $_ }
+        [string[]]$body = $AccountId | ForEach-Object { '<account_id xmlns="">{0}</account_id> ' -f [SecurityElement]::Escape($_) }
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return $ResponseXml.Envelope.Body.MailGetAccountsByIdResponse.returns.account

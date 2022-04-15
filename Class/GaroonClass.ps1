@@ -1,4 +1,6 @@
-﻿
+﻿using namespace System.Xml
+using namespace System.Security
+
 # Garoon APIのラッパークラス群
 # https://cybozudev.zendesk.com/hc/ja/categories/200157760-Garoon-API
 
@@ -41,11 +43,18 @@ class GaroonClass {
     [string] $Ext   # [未使用]拡張子
     [string] $ApiSuffix
     [string] $RequestURI    # 実際にリクエストするURL
+    Hidden [XmlDocument] $XmlDoc
 
     <# ---- コンストラクタ ---- #>
-    GaroonClass() {}
+    GaroonClass() {
+        $this.XmlDoc = New-Object XmlDocument
+        $this.XmlDoc.PreserveWhitespace = $true
+    }
 
     GaroonClass([string]$URL) {
+        $this.XmlDoc = New-Object XmlDocument
+        $this.XmlDoc.PreserveWhitespace = $true
+
         $this.GrnURL = $URL
 
         # for Garoon on cybozu
@@ -59,8 +68,12 @@ class GaroonClass {
     }
 
     GaroonClass([string]$URL, [PSCredential] $Credential) {
+        $this.XmlDoc = New-Object XmlDocument
+        $this.XmlDoc.PreserveWhitespace = $true
+
         $this.GrnURL = $URL
         $this.Credential = $Credential
+
         # for Garoon on cybozu
         if ($tURL = $([regex]::Match($URL, '.+cybozu.com/g'))[0].Value) {
             $this.RequestURI = $tURL + $this.ApiSuffix
@@ -126,7 +139,7 @@ class GaroonClass {
         if (-not $ResponseXml) {
             $msg = 'No Response returned.'
             # Write-Warning $msg
-            throw $msg    # throwとWrite-Errorどっちがいいんだろう？
+            throw $msg
         }
         if ($Fault = $ResponseXml.Envelope.Body.Fault) {
             $msg = ('[ERROR][{0}] {1}' -f $Fault.Detail.Code, $Fault.Reason.Text)

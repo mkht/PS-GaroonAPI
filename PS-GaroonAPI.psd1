@@ -12,7 +12,7 @@
     RootModule        = 'PS-GaroonAPI.psm1'
 
     # このモジュールのバージョン番号です。
-    ModuleVersion     = '0.3.0'
+    ModuleVersion     = '0.4.0'
 
     # サポートされている PSEditions
     # CompatiblePSEditions = @()

@@ -1,4 +1,7 @@
-﻿# ユーザー情報の詳細を表す型
+﻿using namespace System.Xml
+using namespace System.Security
+
+# ユーザー情報の詳細を表す型
 # https://cybozudev.zendesk.com/hc/ja/articles/202496120#step3
 class UserInfo {
     [string]$PrimaryGroup = [NullString]::Value   # 優先する組織のID
@@ -13,11 +16,18 @@ class UserInfo {
     [string]$Locale = [NullString]::Value # ロケールID
     [string]$Base = [NullString]::Value   # 拠点ID
     [int[]]$Organization    # ユーザーが所属する組織のID一覧
+    Hidden [XmlDocument]$XmlDoc
 
     <# ---- コンストラクタ ---- #>
-    UserInfo() {}
+    UserInfo() {
+        $this.XmlDoc = New-Object XmlDocument
+        $this.XmlDoc.PreserveWhitespace = $true
+    }
 
     UserInfo([Object]$Info) {
+        $this.XmlDoc = New-Object XmlDocument
+        $this.XmlDoc.PreserveWhitespace = $true
+
         if ($null -ne $Info.PrimaryGroup) { $this.PrimaryGroup = $Info.PrimaryGroup }
         if ($null -ne $Info.Position) { $this.Position = $Info.Position }
         if ($null -ne $Info.Invalid) { $this.Invalid = $Info.Invalid }
@@ -32,50 +42,56 @@ class UserInfo {
         if ($null -ne $Info.Organization) { $this.Organization = $Info.Organization }
     }
 
-    [string]GetUserInfoString() {
-        $attr = @()
+    [XmlElement]GetUserInfoXmlElement() {
+        $userInfo = $this.XmlDoc.CreateElement('user_info')
         if ($this.Position -as [System.UInt32]) {
-            $attr += ('position="{0}"' -f [string]$this.Position)
+            $userInfo.SetAttribute('position', [string]$this.Position)
         }
         if ($this.Invalid -is [bool]) {
-            $attr += ('invalid="{0}"' -f ([string]$this.Invalid).ToLower())
+            $userInfo.SetAttribute('invalid', ([string]$this.Invalid).ToLower())
         }
-        if ($this.SortKey -ne $null) {
-            $attr += ('sort_key="{0}"' -f $this.SortKey)
+        if ($null -ne $this.SortKey) {
+            $userInfo.SetAttribute('sort_key', $this.SortKey)
         }
-        if ($this.EmailAddress -ne $null) {
-            $attr += ('email_address="{0}"' -f $this.EmailAddress)
+        if ($null -ne $this.EmailAddress) {
+            $userInfo.SetAttribute('email_address', $this.EmailAddress)
         }
-        if ($this.Description -ne $null) {
-            $attr += ('description="{0}"' -f $this.Description)
+        if ($null -ne $this.Description) {
+            $userInfo.SetAttribute('description', $this.Description)
         }
-        if ($this.Post -ne $null) {
-            $attr += ('post="{0}"' -f $this.Post)
+        if ($null -ne $this.Post) {
+            $userInfo.SetAttribute('post', $this.Post)
         }
-        if ($this.TelNumber -ne $null) {
-            $attr += ('telephone_number="{0}"' -f $this.TelNumber)
+        if ($null -ne $this.TelNumber) {
+            $userInfo.SetAttribute('telephone_number', $this.TelNumber)
         }
-        if ($this.Url -ne $null) {
-            $attr += ('url="{0}"' -f $this.Url)
+        if ($null -ne $this.Url) {
+            $userInfo.SetAttribute('url', $this.Url)
         }
-        if ($this.Locale -ne $null) {
-            $attr += ('locale="{0}"' -f $this.Locale)
+        if ($null -ne $this.Locale) {
+            $userInfo.SetAttribute('locale', $this.Locale)
         }
-        if ($this.Base -ne $null) {
-            $attr += ('base="{0}"' -f $this.Base)
+        if ($null -ne $this.Base) {
+            $userInfo.SetAttribute('base', $this.Base)
         }
-        if ($this.PrimaryGroup -ne $null) {
-            $attr += ('primary_group="{0}"' -f $this.PrimaryGroup)
+        if ($null -ne $this.PrimaryGroup) {
+            $userInfo.SetAttribute('primary_group', $this.PrimaryGroup)
         }
 
         $elem = @()
         foreach ($org in $this.Organization) {
             if ($org -is [int]) {
-                $elem += ('<organization>{0}</organization>' -f [string]$org)
+                $elem = $this.XmlDoc.CreateElement('organization')
+                $elem.InnerText = [string]$org
+                $userInfo.AppendChild($elem)
             }
         }
 
-        return [string]('<user_info {0}>{1}</user_info>' -f ($attr -join ' '), ($elem -join ''))
+        return $userInfo
+    }
+
+    [string]GetUserInfoString() {
+        return $this.GetUserInfoXmlElement().OuterXml
     }
 }
 
@@ -183,7 +199,7 @@ Class GaroonAdmin : GaroonClass {
     #ログイン名からユーザーIDを取得する
     [int]GetUserIdByLoginName([string]$LoginName) {
         $Action = 'AdminGetUserIdByLoginName'
-        $ParamBody = ('<parameters><login_name>{0}</login_name></parameters>' -f $LoginName)
+        $ParamBody = ('<parameters><login_name>{0}</login_name></parameters>' -f [SecurityElement]::Escape($LoginName))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.GetUserIdByLoginNameResponse.returns.userId
     }
@@ -203,9 +219,9 @@ Class GaroonAdmin : GaroonClass {
         }
 
         $body = @(
-            ('<login_name xmlns="">{0}</login_name>' -f $LoginName),
-            ('<display_name xmlns="">{0}</display_name>' -f $DisplayName),
-            ('<password_raw xmlns="">{0}</password_raw>' -f $Password)
+            ('<login_name xmlns="">{0}</login_name>' -f [SecurityElement]::Escape($LoginName)),
+            ('<display_name xmlns="">{0}</display_name>' -f [SecurityElement]::Escape($LoginName)),
+            ('<password_raw xmlns="">{0}</password_raw>' -f [SecurityElement]::Escape($LoginName))
         )
         if ($_UserInfo) {
             $body += $_UserInfo
@@ -243,9 +259,9 @@ Class GaroonAdmin : GaroonClass {
         $Action = 'AdminModifyUserAccount'
 
         $body = @(('<userId>{0}</userId>' -f [string]$UserId))
-        if ($LoginName) { $body += ('<login_name xmlns="">{0}</login_name>' -f $LoginName) }
-        if ($DisplayName) { $body += ('<display_name xmlns="">{0}</display_name>' -f $DisplayName) }
-        if ($Password) { $body += ('<password_raw xmlns="">{0}</password_raw>' -f $Password) }
+        if ($LoginName) { $body += ('<login_name xmlns="">{0}</login_name>' -f [SecurityElement]::Escape($LoginName)) }
+        if ($DisplayName) { $body += ('<display_name xmlns="">{0}</display_name>' -f [SecurityElement]::Escape($DisplayName)) }
+        if ($Password) { $body += ('<password_raw xmlns="">{0}</password_raw>' -f [SecurityElement]::Escape($Password)) }
         if ($_UserInfo) { $body += $_UserInfo }
         if ($body.Length -eq 0) {
             return $null
@@ -295,8 +311,8 @@ Class GaroonAdmin : GaroonClass {
     [object[]]AddOrg([string]$OrgCode, [string]$OrgName, [int]$ParentOrgId) {
         $Action = 'AdminAddOrg'
         $body = @(
-            ('<org_code>{0}</org_code>' -f $OrgCode),
-            ('<org_name>{0}</org_name>' -f $OrgName)
+            ('<org_code>{0}</org_code>' -f [SecurityElement]::Escape($OrgCode)),
+            ('<org_name>{0}</org_name>' -f [SecurityElement]::Escape($OrgName))
         )
         if ($ParentOrgId -is [int]) {
             $body += ('<parent_orgId>{0}</parent_orgId>' -f [string]$ParentOrgId)
@@ -325,8 +341,8 @@ Class GaroonAdmin : GaroonClass {
         $Action = 'AdminModifyOrgInfo'
         $body = @(
             ('<orgId>{0}</orgId>' -f [string]$OrgId),
-            ('<org_code>{0}</org_code>' -f $OrgCode),
-            ('<org_name>{0}</org_name>' -f $OrgName)
+            ('<org_code>{0}</org_code>' -f [SecurityElement]::Escape($OrgCode)),
+            ('<org_name>{0}</org_name>' -f [SecurityElement]::Escape($OrgName))
         )
         $ParamBody = ('<parameters>{0}</parameters>' -f ($body -join ''))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
@@ -447,10 +463,8 @@ Class GaroonAdmin : GaroonClass {
     #組織コードから組織IDを取得する
     [int]GetOrgIdByOrgCode([string]$OrgCode) {
         $Action = 'AdminGetOrgIdByOrgCode'
-        $ParamBody = ('<parameters><org_code>{0}</org_code></parameters>' -f $OrgCode)
+        $ParamBody = ('<parameters><org_code>{0}</org_code></parameters>' -f [SecurityElement]::Escape($OrgCode))
         $ResponseXml = $this.Request($this.CreateRequestXml($Action, $ParamBody, (Get-Date)))
         return [int]$ResponseXml.Envelope.Body.GetOrgIdByOrgCodeResponse.returns.orgId
     }
-
-
 }
