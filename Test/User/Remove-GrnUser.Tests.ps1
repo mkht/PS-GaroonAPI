@@ -1,7 +1,14 @@
-﻿$moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+﻿#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.3' }
 
-Get-Module 'PS-GaroonAPI' | Remove-Module -Force
-Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+BeforeAll {
+    $moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
+    Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+}
+
+AfterAll {
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
+}
 
 Describe 'Tests of Remove-GrnUser' {
     BeforeAll {

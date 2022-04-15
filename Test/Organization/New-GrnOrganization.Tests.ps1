@@ -1,17 +1,14 @@
-﻿$moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-
-Get-Module 'PS-GaroonAPI' | Remove-Module -Force
-Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+﻿#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.3' }
 
 BeforeAll {
-    function Get-RandomName () {
-        # なんとなく市区町村ぽい名前をランダム生成する関数
-        $MojiList1 = '上中下東西南北京浜丘国寺神和平右左日月火水木金土新古大小海池山河湖黒白一二三'
-        $MojiList2 = '市区町村'
-        $MojiA = Get-Random -InputObject $MojiList1.ToCharArray() -Count (Get-Random (2, 3))
-        $MojiB = Get-Random -InputObject $MojiList2.ToCharArray() -Count 1
-        -join ($MojiA + $MojiB)
-    }
+    $moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
+    Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+    Import-Module (Join-Path $moduleRoot './Test/TestUtils/Get-RandomName.psm1') -Force
+}
+
+AfterAll {
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
 }
 
 Describe 'Tests of New-GrnOrganization' {

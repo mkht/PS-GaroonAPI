@@ -1,7 +1,14 @@
-﻿$moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+﻿#Requires -Modules @{ ModuleName='Pester'; ModuleVersion='5.3' }
 
-Get-Module 'PS-GaroonAPI' | Remove-Module -Force
-Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+BeforeAll {
+    $moduleRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
+    Import-Module (Join-Path $moduleRoot './PS-GaroonAPI.psd1') -Force
+}
+
+AfterAll {
+    Get-Module 'PS-GaroonAPI' | Remove-Module -Force
+}
 
 Describe 'Tests of New-GrnUser' {
     BeforeAll {
@@ -80,6 +87,21 @@ Describe 'Tests of New-GrnUser' {
                 LoginName           = & $Gen_Id
                 DisplayName         = '手巣戸 花子'
                 Password            = 'P@ssw0rd'
+                PrimaryOrganization = ''
+                Organization        = ''
+            }
+
+            $private:user = New-GrnUser @UserInfo -URL $GrnURL -Credential $ValidCred -PassThru -ea Continue
+            $user.LoginName | Should -BeExactly $UserInfo.LoginName
+            $user.DisplayName | Should -BeExactly $UserInfo.DisplayName
+            $UserInfo.Organization | Should -Be ''
+        }
+
+        It 'Create new user contains characters that need to be escaped' {
+            $script:UserInfo = @{
+                LoginName           = & $Gen_Id
+                DisplayName         = 'Smith "<Agent>" Jones & Rude'
+                Password            = 'P@ssw0rd&X'
                 PrimaryOrganization = ''
                 Organization        = ''
             }
